@@ -162,3 +162,5 @@ cython_debug/
 
 #Added ignores
 .DS_Store
+.env
+*.json
