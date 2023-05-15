@@ -3,12 +3,13 @@ import json
 import praw
 import datetime
 import spacy
-from textblob import TextBlob
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from dotenv import load_dotenv
 import en_core_web_lg
 
 load_dotenv()
 nlp = en_core_web_lg.load()
+sia = SentimentIntensityAnalyzer()  # Initialize Vader SentimentIntensityAnalyzer
 NUM_POSTS = 2
 SUBREDDIT_NAME = 'technology'
 
@@ -61,7 +62,7 @@ def analyse_comments(reddit, posts_data: list[dict]):
             doc = nlp(text)
             entities = [(ent.text, ent.label_) for ent in doc.ents]
             keywords = [ent[0] for ent in entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
-            sentiment = TextBlob(text).sentiment.polarity
+            sentiment = sia.polarity_scores(text)  # Use Vader to analyze sentiment
             post_data['comments'].append({
                 'comment': text,
                 'entities': entities,
