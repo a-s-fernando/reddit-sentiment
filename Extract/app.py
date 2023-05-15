@@ -9,7 +9,7 @@ import en_core_web_lg
 
 load_dotenv()
 nlp = en_core_web_lg.load()
-sia = SentimentIntensityAnalyzer()  # Initialize Vader SentimentIntensityAnalyzer
+sia = SentimentIntensityAnalyzer()  # Initialise Vader SentimentIntensityAnalyzer
 NUM_POSTS = 2
 SUBREDDIT_NAME = 'technology'
 
