@@ -47,30 +47,32 @@ def fetch_posts(client_id: str, client_secret: str, user_agent: str, subreddit_n
             'comments': []
         }
 
+        # Analyze comments for each post
+        analyse_comments(reddit, post_data)
+
         posts_data.append(post_data)
 
     return posts_data
 
-def analyse_comments(reddit, posts_data: list[dict]):
-    """Function to analyse the sentiment and scores of comments in the given posts"""
-    for post_data in posts_data:
-        post = praw.models.Submission(reddit, id=post_data['id'])
-        post.comments.replace_more(limit=0)
+def analyse_comments(reddit, post_data: dict):
+    """Function to analyse the sentiment and scores of comments in the given post"""
+    post = praw.models.Submission(reddit, id=post_data['id'])
+    post.comments.replace_more(limit=0)
 
-        for comment in post.comments.list():
-            text = comment.body.replace('/', ' or ')  # replace slashes with 'or' for Spacy recognition
-            doc = nlp(text)
-            entities = [(ent.text, ent.label_) for ent in doc.ents]
-            keywords = [ent[0] for ent in entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
-            sentiment = sia.polarity_scores(text)  # Use Vader to analyze sentiment
-            post_data['comments'].append({
-                'comment': text,
-                'entities': entities,
-                'keywords': keywords,
-                'sentiment': sentiment,
-                'datetime': str(datetime.datetime.utcfromtimestamp(comment.created_utc)),
-                'score': comment.score
-            })
+    for comment in post.comments.list():
+        text = comment.body.replace('/', ' or ')  # replace slashes with 'or' for Spacy recognition
+        doc = nlp(text)
+        entities = [(ent.text, ent.label_) for ent in doc.ents]
+        keywords = [ent[0] for ent in entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
+        sentiment = sia.polarity_scores(text)  # Use Vader to analyze sentiment
+        post_data['comments'].append({
+            'comment': text,
+            'entities': entities,
+            'keywords': keywords,
+            'sentiment': sentiment,
+            'datetime': str(datetime.datetime.utcfromtimestamp(comment.created_utc)),
+            'score': comment.score
+        })
 
 
 def main():
@@ -86,7 +88,7 @@ def main():
     )
 
     posts_data = fetch_posts(client_id, client_secret, user_agent, SUBREDDIT_NAME, NUM_POSTS)
-    analyse_comments(reddit, posts_data)
+
 
     with open(f"{SUBREDDIT_NAME}_{NUM_POSTS}_posts.json", 'w') as f:
         json.dump(posts_data, f, indent=4)
