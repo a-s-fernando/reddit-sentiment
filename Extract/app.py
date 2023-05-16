@@ -30,13 +30,14 @@ def fetch_posts(reddit: praw.Reddit, subreddit_name='technology', num_posts=1) -
         title = post.title.replace('/', ' or ')  # replace slashes with 'or' for Spacy recognition
         doc = nlp(title)
         entities = [(ent.text, ent.label_) for ent in doc.ents]
-        print(entities)
+        adjectives = [token.text for token in doc if token.pos_ == 'ADJ']
         keywords = [ent[0] for ent in entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
         post_data = {
             'id': post.id,
             'title': post.title,
             'entities': entities,
             'keywords': keywords,
+            'adjectives': adjectives,
             'datetime': str(datetime.datetime.utcfromtimestamp(post.created_utc)),
             'comments': []
         }
@@ -49,7 +50,7 @@ def fetch_posts(reddit: praw.Reddit, subreddit_name='technology', num_posts=1) -
     return posts_data
 
 def analyse_comments(reddit: praw.Reddit, post_data: dict):
-    """Function to analyse the sentiment and scores of comments in the given post"""
+    """Function to analyze the sentiment and scores of comments in the given post"""
     post = praw.models.Submission(reddit, id=post_data['id'])
     post.comments.replace_more(limit=0)
 
@@ -57,12 +58,12 @@ def analyse_comments(reddit: praw.Reddit, post_data: dict):
         text = comment.body.replace('/', ' or ')  # replace slashes with 'or' for Spacy recognition
         doc = nlp(text)
         entities = [(ent.text, ent.label_) for ent in doc.ents]
-        keywords = [ent[0] for ent in entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
+        adjectives = [token.text.lower() for token in doc if token.pos_ == 'ADJ']
+        keywords = [ent[0].lower() for ent in entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
         sentiment = sia.polarity_scores(text)  # Use Vader to analyze sentiment
         post_data['comments'].append({
             'comment': text,
-            'entities': entities,
-            'keywords': keywords,
+            'keywords': keywords + adjectives,
             'sentiment': sentiment,
             'datetime': str(datetime.datetime.utcfromtimestamp(comment.created_utc)),
             'score': comment.score
