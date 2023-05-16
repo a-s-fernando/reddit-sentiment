@@ -10,7 +10,7 @@ import en_core_web_lg
 load_dotenv()
 nlp = en_core_web_lg.load()
 sia = SentimentIntensityAnalyzer()  # Initialise Vader SentimentIntensityAnalyzer
-NUM_POSTS = 2
+NUM_POSTS = 1
 SUBREDDIT_NAME = 'technology'
 
 config = {
@@ -19,14 +19,8 @@ config = {
     "client_secret": os.environ.get("client_secret")
 }
 
-def fetch_posts(client_id: str, client_secret: str, user_agent: str, subreddit_name='technology', num_posts=1) -> list:
+def fetch_posts(reddit: praw.Reddit, subreddit_name='technology', num_posts=1) -> list:
     """Function to fetch the top N posts from a subreddit"""
-    reddit = praw.Reddit(
-        client_id=client_id,
-        client_secret=client_secret,
-        user_agent=user_agent
-    )
-
     subreddit = reddit.subreddit(subreddit_name)
     hot_posts = subreddit.hot(limit=num_posts)
 
@@ -36,13 +30,14 @@ def fetch_posts(client_id: str, client_secret: str, user_agent: str, subreddit_n
         title = post.title.replace('/', ' or ')  # replace slashes with 'or' for Spacy recognition
         doc = nlp(title)
         entities = [(ent.text, ent.label_) for ent in doc.ents]
-        print(entities)
+        adjectives = [token.text for token in doc if token.pos_ == 'ADJ']
         keywords = [ent[0] for ent in entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
         post_data = {
             'id': post.id,
             'title': post.title,
             'entities': entities,
             'keywords': keywords,
+            'adjectives': adjectives,
             'datetime': str(datetime.datetime.utcfromtimestamp(post.created_utc)),
             'comments': []
         }
@@ -54,8 +49,8 @@ def fetch_posts(client_id: str, client_secret: str, user_agent: str, subreddit_n
 
     return posts_data
 
-def analyse_comments(reddit, post_data: dict):
-    """Function to analyse the sentiment and scores of comments in the given post"""
+def analyse_comments(reddit: praw.Reddit, post_data: dict):
+    """Function to analyze the sentiment and scores of comments in the given post"""
     post = praw.models.Submission(reddit, id=post_data['id'])
     post.comments.replace_more(limit=0)
 
@@ -63,20 +58,19 @@ def analyse_comments(reddit, post_data: dict):
         text = comment.body.replace('/', ' or ')  # replace slashes with 'or' for Spacy recognition
         doc = nlp(text)
         entities = [(ent.text, ent.label_) for ent in doc.ents]
-        keywords = [ent[0] for ent in entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
+        adjectives = [token.text.lower() for token in doc if token.pos_ == 'ADJ']
+        keywords = [ent[0].lower() for ent in entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
         sentiment = sia.polarity_scores(text)  # Use Vader to analyze sentiment
         post_data['comments'].append({
             'comment': text,
-            'entities': entities,
-            'keywords': keywords,
+            'keywords': keywords + adjectives,
             'sentiment': sentiment,
             'datetime': str(datetime.datetime.utcfromtimestamp(comment.created_utc)),
             'score': comment.score
         })
 
-
-def main():
-    """Main function to run the script"""
+def lambda_handler(event, context):
+    """AWS Lambda handler function"""
     user_agent = config["user_agent"]
     client_id = config["client_id"]
     client_secret = config["client_secret"]
@@ -87,12 +81,17 @@ def main():
         user_agent=user_agent
     )
 
-    posts_data = fetch_posts(client_id, client_secret, user_agent, SUBREDDIT_NAME, NUM_POSTS)
+    # Check if the Reddit API is connecting properly
+    if reddit.read_only:
+        print("Successfully connected to the Reddit API")
+    else:
+        print("Failed to connect to the Reddit API")
+        return  # Terminate the script if the API connection failed
 
+    posts_data = fetch_posts(reddit, SUBREDDIT_NAME, NUM_POSTS)
 
-    with open(f"{SUBREDDIT_NAME}_{NUM_POSTS}_posts.json", 'w') as f:
-        json.dump(posts_data, f, indent=4)
-
-# Run the main function
-if __name__ == "__main__":
-    main()
+    # Return the posts_data as the response
+    return {
+        'statusCode': 200,
+        'body': json.dumps(posts_data)
+    }
