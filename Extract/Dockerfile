@@ -1,13 +1,6 @@
-FROM python:3.10
-
+FROM public.ecr.aws/lambda/python:latest
 WORKDIR /app
-
 COPY requirements.txt .
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-RUN python -m spacy download en_core_web_lg
-
-COPY . .
-
-CMD ["python", "app.py"]
+RUN pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
+COPY app.py ${LAMBDA_TASK_ROOT}
+CMD ["app.lambda_handler"]
