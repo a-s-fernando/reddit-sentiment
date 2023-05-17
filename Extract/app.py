@@ -91,7 +91,4 @@ def lambda_handler(event, context):
     posts_data = fetch_posts(reddit, SUBREDDIT_NAME, NUM_POSTS)
 
     # Return the posts_data as the response
-    return {
-        'statusCode': 200,
-        'body': json.dumps(posts_data)
-    }
+    return json.dumps(posts_data)

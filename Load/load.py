@@ -1,3 +1,5 @@
+"""Script to load the data into the tables created in the
+create_tables.sql file"""
 import json
 import psycopg2
 
@@ -10,10 +12,10 @@ def lambda_handler(event, context):
         user='adamabbassl'
     )
     cursor = connection.cursor()
+    cursor.execute(open("create_tables.sql", "r").read())
 
     # Process each post in the json input
-    for post in event:
-
+    for post in json.loads(event):
         # Check if post exists in the database based on title
         cursor.execute("SELECT post_id FROM Post WHERE title = %s", (post['title'],))
         post_id = cursor.fetchone()
