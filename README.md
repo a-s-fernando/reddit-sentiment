@@ -45,6 +45,23 @@ To start with the project, follow these steps:
 Note: Ensure that the `create_tables.sql` file is in the same directory as the `load.py` file or adjust the path in the `load.py` file accordingly.
 
 # Terraform 
+You will need a Terraform to set up the architecture with one single command:
+
+`terraform apply -var-file=".tfvars" -auto-approve`
+
+Ensure that you have all the following credientials/environment variables:
+- `username`
+- `password`
+- `database_name`
+- `access_key`
+- `secret_key`
+- `region_name`
+- `user_agent`
+- `client_id`
+- `client_secret`
+- `num_posts`
+- `subreddit_name`
+- `bucket_name`
 
 # Stretch Goals
 Future enhancements to this project may include:
