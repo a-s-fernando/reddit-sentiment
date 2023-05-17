@@ -28,7 +28,7 @@ The project features include:
 # File Structure
 The main components of this project are two python files, `app.py` and `load.py`, and a SQL script `create_tables.sql`.
 
-`app.py` is responsible for extracting data from the Reddit API and storing it in an S3 bucket. It utilizes PRAW (Python Reddit API Wrapper) and NLTK's VADER (Valence Aware Dictionary for Sentiment Reasoning) for sentiment analysis.
+`app.py` is responsible for extracting data from the Reddit API and storing it in an S3 bucket. It utilises PRAW (Python Reddit API Wrapper) and NLTK's VADER (Valence Aware Dictionary for Sentiment Reasoning) for sentiment analysis.
 
 `load.py` is a script that loads the data into PostgreSQL tables. It downloads the data from the S3 bucket, connects to the PostgreSQL database, creates the necessary tables using the `create_tables.sql` file, and then populates these tables with the data.
 
@@ -46,6 +46,8 @@ To start with the project, follow these steps:
 7. Execute `load.py` to download the data from the S3 bucket, create the necessary tables in the PostgreSQL database, and load the data into these tables.
 
 Note: Ensure that the `create_tables.sql` file is in the same directory as the `load.py` file or adjust the path in the `load.py` file accordingly.
+
+# Terraform 
 
 # Stretch Goals
 Future enhancements to this project may include:
