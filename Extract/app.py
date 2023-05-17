@@ -41,8 +41,7 @@ def fetch_posts(reddit: praw.Reddit, subreddit_name='technology', num_posts=1) -
             'id': post.id,
             'title': post.title,
             'entities': entities,
-            'keywords': keywords,
-            'adjectives': adjectives,
+            'keywords': keywords + adjectives,
             'datetime': str(datetime.datetime.utcfromtimestamp(post.created_utc)),
             'comments': []
         }
