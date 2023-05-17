@@ -2,7 +2,6 @@
 create_tables.sql file"""
 import json
 import psycopg2
-import sys
 
 def lambda_handler(event, context):
     # Establish database connection
