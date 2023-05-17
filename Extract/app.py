@@ -2,12 +2,13 @@ import os
 import json
 import praw
 import datetime
-import spacy
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from dotenv import load_dotenv
 import en_core_web_lg
-
+import nltk
+nltk.download('vader_lexicon')
 load_dotenv()
+
 nlp = en_core_web_lg.load()
 sia = SentimentIntensityAnalyzer()  # Initialise Vader SentimentIntensityAnalyzer
 NUM_POSTS = os.environ.get("num_posts")
@@ -22,8 +23,9 @@ config = {
 
 def fetch_posts(reddit: praw.Reddit, subreddit_name='technology', num_posts=1) -> list:
     """Function to fetch the top N posts from a subreddit"""
+    print("Fetching posts...")
     subreddit = reddit.subreddit(subreddit_name)
-    hot_posts = subreddit.hot(limit=num_posts)
+    hot_posts = subreddit.hot(limit=int(num_posts))
 
     posts_data: list[dict] = []
 
@@ -99,4 +101,5 @@ def lambda_handler(event, context):
     posts_data = fetch_posts(reddit, SUBREDDIT_NAME, NUM_POSTS)
 
     # Return the posts_data as the response
+    print("Success, returning data...")
     return json.dumps(posts_data)
