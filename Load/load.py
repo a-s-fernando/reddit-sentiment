@@ -3,11 +3,13 @@ create_tables.sql file"""
 import os
 import json
 import psycopg2
+import boto3
 
 HOST=os.environ.get('HOST')
 PORT=int(os.environ.get('PORT'))
 DB_NAME=os.environ.get('DB_NAME')
 USER=os.environ.get('USER')
+FILE_NAME = "posts_data.json"
 
 def lambda_handler(event, context):
     # Establish database connection
@@ -17,12 +19,19 @@ def lambda_handler(event, context):
         dbname=DB_NAME,
         user=USER
     )
-    print(connection)
     cursor = connection.cursor()
     cursor.execute(open("create_tables.sql", "r").read())
+    s3 = boto3.resource(service_name='s3', region_name=os.environ.get("region_name"),
+                        aws_access_key_id=os.environ.get("access_key"),aws_secret_access_key=os.environ.get("secret_access_key"))
+    bucket_name = os.environ.get("bucket_name")
+    s3.Bucket(bucket_name).download_file(FILE_NAME, f'/tmp/{FILE_NAME}')
+
+
+    with open(f'/tmp/{FILE_NAME}') as file:
+        data = json.loads(file.read())
 
     # Process each post in the json input
-    for post in json.loads(event):
+    for post in data:
         # Check if post exists in the database based on title
         cursor.execute(
             "SELECT post_id FROM Post WHERE title = %s", (post['title'],))
@@ -85,6 +94,8 @@ def lambda_handler(event, context):
     connection.commit()
     cursor.close()
     connection.close()
+
+
 
     return "Data processed successfully"
 

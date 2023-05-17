@@ -6,6 +6,8 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from dotenv import load_dotenv
 import en_core_web_lg
 import nltk
+import boto3
+
 nltk.data.path.append("/tmp")
 nltk.download("vader_lexicon", download_dir="/tmp")
 load_dotenv()
@@ -100,6 +102,18 @@ def lambda_handler(event, context):
 
     posts_data = fetch_posts(reddit, SUBREDDIT_NAME, NUM_POSTS)
 
+    print("Connecting to bucket...")
+    s3 = boto3.resource(service_name='s3', region_name=os.environ.get("region_name"),
+                        aws_access_key_id=os.environ.get("access_key"),aws_secret_access_key=os.environ.get("secret_access_key"))
+    bucket_name = os.environ.get("bucket_name")
+    file_name = "posts_data.json"
+
+    print("Uploading file...")
+    s3.Bucket(bucket_name).put_object(
+        Key=file_name, Body=json.dumps(posts_data))
+
     # Return the posts_data as the response
-    print("Success, returning data...")
-    return json.dumps(posts_data)
+
+    print("File uploaded.")
+    return "Sent data to S3."
+
