@@ -1,4 +1,6 @@
 """Unit tests to ensure the correct functionality of the app.py script"""
+from app import analyse_comments
+from unittest.mock import MagicMock, patch
 import os
 from dotenv import load_dotenv
 import praw
@@ -10,6 +12,7 @@ from app import fetch_posts, analyse_comments
 
 # Load environment variables from .env file
 load_dotenv('.env')
+
 
 def test_fetch_posts_returns_list_of_dictionaries():
     """Tests if the returned data is a list of dictionaries"""
@@ -27,6 +30,7 @@ def test_fetch_posts_returns_list_of_dictionaries():
     assert isinstance(posts, list)
     assert all(isinstance(post, dict) for post in posts)
 
+
 def test_fetch_posts_returns_correct_number_of_posts():
     """Tests if the number of returned posts matches up with the desired number"""
     client_id = os.getenv('client_id')
@@ -43,6 +47,7 @@ def test_fetch_posts_returns_correct_number_of_posts():
     posts = fetch_posts(reddit, num_posts=num_posts)
     assert len(posts) == num_posts
 
+
 def test_fetch_posts_returns_post_dictionary_with_required_keys():
     """Tests if the returned output is a dict and includes all required keys"""
     client_id = os.getenv('client_id')
@@ -56,8 +61,10 @@ def test_fetch_posts_returns_post_dictionary_with_required_keys():
     )
 
     posts = fetch_posts(reddit)
-    required_keys = ['id', 'title', 'entities', 'keywords', 'datetime', 'comments']
+    required_keys = ['id', 'title', 'entities',
+                     'keywords', 'datetime', 'comments']
     assert all(set(required_keys).issubset(post.keys()) for post in posts)
+
 
 def test_fetch_posts_returns_post_with_correct_types():
     """Tests that the returned output for entities and keywords are of the correct type"""
@@ -81,14 +88,11 @@ def test_fetch_posts_returns_post_with_correct_types():
         title = post['title']
         doc = nlp(title)
         extracted_entities = [(ent.text, ent.label_) for ent in doc.ents]
-        extracted_keywords = [ent[0] for ent in extracted_entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
+        extracted_keywords = [
+            ent[0] for ent in extracted_entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
         assert type(entities) == list
         assert type(keywords) == list
 
-
-import unittest
-from unittest.mock import MagicMock, patch
-from app import analyse_comments
 
 class AnalyseCommentsTestCase(unittest.TestCase):
     def setUp(self):
@@ -116,7 +120,8 @@ class AnalyseCommentsTestCase(unittest.TestCase):
         mock_comment1.body = "First comment"
         mock_comment2 = MagicMock()
         mock_comment2.body = "Second comment"
-        mock_submission.comments.list.return_value = [mock_comment1, mock_comment2]
+        mock_submission.comments.list.return_value = [
+            mock_comment1, mock_comment2]
 
         # Call analyse_comments function
         analyse_comments(self.reddit, post_data)
@@ -139,7 +144,8 @@ class AnalyseCommentsTestCase(unittest.TestCase):
         }
         mock_comment = MagicMock()
         mock_comment.body = "I love using Reddit. It's great!"
-        mock_models.Submission.return_value.comments.list.return_value = [mock_comment]
+        mock_models.Submission.return_value.comments.list.return_value = [
+            mock_comment]
 
         # Call analyse_comments function
         analyse_comments(self.reddit, post_data)
@@ -162,7 +168,8 @@ class AnalyseCommentsTestCase(unittest.TestCase):
         }
         mock_comment = MagicMock()
         mock_comment.body = "I love using Reddit. It's great!"
-        mock_models.Submission.return_value.comments.list.return_value = [mock_comment]
+        mock_models.Submission.return_value.comments.list.return_value = [
+            mock_comment]
 
         # Call analyse_comments function
         analyse_comments(self.reddit, post_data)
@@ -175,6 +182,3 @@ class AnalyseCommentsTestCase(unittest.TestCase):
         self.assertIn('pos', post_data['comments'][0]['sentiment'])
         self.assertIn('neg', post_data['comments'][0]['sentiment'])
         self.assertIn('neu', post_data['comments'][0]['sentiment'])
-
-
-
