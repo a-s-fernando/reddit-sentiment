@@ -1,5 +1,12 @@
+"""Script to load the data into the tables created in the
+create_tables.sql file"""
 import json
 import psycopg2
+import sys
+
+sys.path.append('../Extract')
+
+from app import lambda_handler as lh
 
 def lambda_handler(event, context):
     # Establish database connection
@@ -10,10 +17,10 @@ def lambda_handler(event, context):
         user='adamabbassl'
     )
     cursor = connection.cursor()
+    cursor.execute(open("create_tables.sql", "r").read())
 
     # Process each post in the json input
-    for post in event:
-
+    for post in json.loads(event):
         # Check if post exists in the database based on title
         cursor.execute("SELECT post_id FROM Post WHERE title = %s", (post['title'],))
         post_id = cursor.fetchone()
@@ -74,3 +81,7 @@ def lambda_handler(event, context):
     connection.close()
 
     return "Data processed successfully"
+
+if __name__ == "__main__":
+    event = (lh(None, None))
+    lambda_handler(event, None)
