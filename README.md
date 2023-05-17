@@ -47,7 +47,7 @@ Note: Ensure that the `create_tables.sql` file is in the same directory as the `
 # Terraform 
 You will need a Terraform to set up the architecture with one single command:
 
-bash ```
+bash```
 terraform apply -var-file=".tfvars" -auto-approve
 ```
 
