@@ -6,7 +6,8 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from dotenv import load_dotenv
 import en_core_web_lg
 import nltk
-nltk.download('vader_lexicon')
+nltk.data.path.append("/tmp")
+nltk.download("vader_lexicon", download_dir="/tmp")
 load_dotenv()
 
 nlp = en_core_web_lg.load()
