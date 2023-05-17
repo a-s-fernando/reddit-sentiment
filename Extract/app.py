@@ -117,6 +117,3 @@ def lambda_handler(event, context):
     print("File uploaded.")
     return "Sent data to S3."
 
-    print("Success, returning data...")
-    return json.dumps(posts_data)
-
