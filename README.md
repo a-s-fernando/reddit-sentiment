@@ -1,6 +1,3 @@
-Here's your modified README.md:
-
----
 ## Sentiment Analysis Over Time
 
 # reddit-sentiment
