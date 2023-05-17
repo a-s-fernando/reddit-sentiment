@@ -1,24 +1,31 @@
 """Script to load the data into the tables created in the
 create_tables.sql file"""
+import os
 import json
 import psycopg2
-import sys
+
+HOST=os.environ.get('HOST')
+PORT=int(os.environ.get('PORT'))
+DB_NAME=os.environ.get('DB_NAME')
+USER=os.environ.get('USER')
 
 def lambda_handler(event, context):
     # Establish database connection
     connection = psycopg2.connect(
-        host='localhost',
-        port='5432',
-        dbname='sentiment',
-        user='adamabbassl'
+        host=HOST,
+        port=PORT,
+        dbname=DB_NAME,
+        user=USER
     )
+    print(connection)
     cursor = connection.cursor()
     cursor.execute(open("create_tables.sql", "r").read())
 
     # Process each post in the json input
     for post in json.loads(event):
         # Check if post exists in the database based on title
-        cursor.execute("SELECT post_id FROM Post WHERE title = %s", (post['title'],))
+        cursor.execute(
+            "SELECT post_id FROM Post WHERE title = %s", (post['title'],))
         post_id = cursor.fetchone()
 
         if not post_id:
@@ -29,7 +36,8 @@ def lambda_handler(event, context):
 
             # Insert keywords associated with the post
             for keyword in post['keywords']:
-                cursor.execute("SELECT post_keyword_id FROM Post_keyword WHERE post_keyword = %s", (keyword,))
+                cursor.execute(
+                    "SELECT post_keyword_id FROM Post_keyword WHERE post_keyword = %s", (keyword,))
                 keyword_id = cursor.fetchone()
 
                 if not keyword_id:
@@ -45,7 +53,8 @@ def lambda_handler(event, context):
         # Process comments
         for comment in post['comments']:
             # Check if comment exists in the database based on comment text
-            cursor.execute("SELECT comment_id FROM Comment WHERE comment = %s", (comment['comment'],))
+            cursor.execute(
+                "SELECT comment_id FROM Comment WHERE comment = %s", (comment['comment'],))
             comment_id = cursor.fetchone()
 
             if comment_id:
@@ -58,7 +67,8 @@ def lambda_handler(event, context):
 
             # Insert keywords associated with the comment
             for keyword in comment['keywords']:
-                cursor.execute("SELECT comment_keyword_id FROM Comment_keyword WHERE comment_keyword = %s", (keyword,))
+                cursor.execute(
+                    "SELECT comment_keyword_id FROM Comment_keyword WHERE comment_keyword = %s", (keyword,))
                 keyword_id = cursor.fetchone()
 
                 if not keyword_id:
@@ -77,3 +87,4 @@ def lambda_handler(event, context):
     connection.close()
 
     return "Data processed successfully"
+
