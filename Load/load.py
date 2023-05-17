@@ -4,10 +4,6 @@ import json
 import psycopg2
 import sys
 
-sys.path.append('../Extract')
-
-from app import lambda_handler as lh
-
 def lambda_handler(event, context):
     # Establish database connection
     connection = psycopg2.connect(
@@ -81,7 +77,3 @@ def lambda_handler(event, context):
     connection.close()
 
     return "Data processed successfully"
-
-if __name__ == "__main__":
-    event = (lh(None, None))
-    lambda_handler(event, None)
