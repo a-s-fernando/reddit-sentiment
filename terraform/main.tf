@@ -8,11 +8,13 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
+
 # Designating variables
 variable "access_key" {
   description = "Access key for AWS."
   type = string
 }
+
 variable "secret_key" {
   description = "Secret key for AWS."
   type = string
@@ -37,14 +39,17 @@ variable "password" {
   description = "Password for the database"
   type = string
 }
+
 variable "user_agent" {
   description = "Agent name for using the Reddit API."
   type = string
 }
+
 variable "client_id" {
   description = "Client ID for the Reddit API."
   type = string
 }
+
 variable "client_secret" {
   description = "Client secret for the Reddit API."
   type = string
@@ -65,6 +70,7 @@ variable "bucket_name" {
   type = string
 }
 
+
 # Configure AWS provider
 provider "aws" {
   access_key = var.access_key
@@ -72,20 +78,27 @@ provider "aws" {
   region     = var.region_name
 }
 
+
 # Use an existing VPC
 data "aws_vpc" "c7-vpc" {
   id = "vpc-010fd888c94cf5102"
 }
+
+
 # Use an existing subnet
 data "aws_db_subnet_group" "c7-subnets" {
   name = "c7-db-subnet-group"
 }
+
+
 # Use an existing security group
 data "aws_security_group" "c7-remote-access" {
   name   = "c7-remote-access"
   vpc_id = data.aws_vpc.c7-vpc.id
   id     = "sg-01745c9fa38b8ed68"
 }
+
+
 # Create an RDS database
 resource "aws_db_instance" "sentiment-db" {
   identifier        = "sentiment-db"
@@ -101,6 +114,7 @@ resource "aws_db_instance" "sentiment-db" {
   db_subnet_group_name   = data.aws_db_subnet_group.c7-subnets.name
   vpc_security_group_ids = [data.aws_security_group.c7-remote-access.id]
 }
+
 
 # Create S3 bucket
 resource "aws_s3_bucket" "s3_bucket" {
@@ -119,6 +133,8 @@ data "aws_iam_policy_document" "assume_role" {
     actions = ["sts:AssumeRole"]
   }
 }
+
+
 # Create lambda IAM role
 resource "aws_iam_role" "lambda-role" {
   name_prefix = "iam-sentiment-for-lambda"
@@ -133,6 +149,8 @@ resource "aws_iam_role" "lambda-role" {
     }]
   })
 }
+
+
 # Create lambda extraction function
 resource "aws_lambda_function" "sentiment-extract" {
   function_name = "sentiment-extract"
@@ -156,6 +174,8 @@ resource "aws_lambda_function" "sentiment-extract" {
     }
   }
 }
+
+
 # Create lambda loading function
 resource "aws_lambda_function" "sentiment-load" {
   function_name = "sentiment-load"
@@ -181,6 +201,7 @@ resource "aws_lambda_function" "sentiment-load" {
 }
 
 
+# Create an IAM role for Step Functions Event Bridge
 resource "aws_iam_role" "sentiment-event-bridge-role" {
   name = "sentiment-event-bridge-role"
   assume_role_policy = <<POLICY1
@@ -198,6 +219,7 @@ resource "aws_iam_role" "sentiment-event-bridge-role" {
 }
 POLICY1
 }
+
 
 # Create an IAM role for Step Functions State Machine
 resource "aws_iam_role" "sentiment-state-machine-role" {
@@ -218,6 +240,7 @@ resource "aws_iam_role" "sentiment-state-machine-role" {
 POLICY2
 }
 
+
 # Create an IAM policy for Eventbridge to be able to start a Step Function execution
 resource "aws_iam_policy" "sentiment-event-bridge-policy" {
   name = "sentiment-event-bridge-policy"
@@ -236,6 +259,7 @@ resource "aws_iam_policy" "sentiment-event-bridge-policy" {
 }
 POLICY3
 }
+
 
 # Create an IAM policy to enable Step Function State Machine to push logs to CloudWatch logs
 resource "aws_iam_policy" "sentiment-state-machine-log-delivery-policy" {
@@ -262,6 +286,8 @@ resource "aws_iam_policy" "sentiment-state-machine-log-delivery-policy" {
 }
 POLICY4
 }
+
+
 # Create an IAM policy to enable Step Function State Machine to invoke lambda functions
 resource "aws_iam_policy" "sentiment-state-machine-lambda-policy" {
   name = "sentiment-state-machine-lambda-policy"
@@ -283,6 +309,8 @@ resource "aws_iam_policy" "sentiment-state-machine-lambda-policy" {
 }
 POLICY5
 }
+
+
 # Attach the IAM policies to the equivalent rule
 resource "aws_iam_role_policy_attachment" "sentiment-event-bridge-policy-attachment" {
   role       = aws_iam_role.sentiment-event-bridge-role.name
@@ -299,11 +327,14 @@ resource "aws_iam_role_policy_attachment" "sentiment-state-machine-lambda-policy
   policy_arn = aws_iam_policy.sentiment-state-machine-lambda-policy.arn
 }
 
+
 # Create an Log group for the Step Function
 resource "aws_cloudwatch_log_group" "MyLogGroup" {
   name = "sentiment-log-group"
 }
 
+
+# Create Step Function State Machine
 resource "aws_sfn_state_machine" "sfn_state_machine" {
   name     = "sentiment-step-function"
   role_arn = aws_iam_role.sentiment-state-machine-role.arn
@@ -334,6 +365,7 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
   }
 }
 
+
 # Create schedule event rule to use for our step function 
 resource "aws_cloudwatch_event_rule" "sentiment-schedule-step-function" {
   name                = "sentiment-schedule-step-function"
@@ -341,10 +373,11 @@ resource "aws_cloudwatch_event_rule" "sentiment-schedule-step-function" {
   description = "Rule that triggers every 30 minutes, created for the reddit-sentiment project."
   role_arn = aws_iam_role.sentiment-event-bridge-role.arn
 }
+
+
 # Create a schedule target for our schedule rule
 resource "aws_cloudwatch_event_target" "schedule-target-sentiment" {
   rule = aws_cloudwatch_event_rule.sentiment-schedule-step-function.name
   arn  = aws_sfn_state_machine.sfn_state_machine.arn
   role_arn = aws_iam_role.sentiment-event-bridge-role.arn
 }
-
