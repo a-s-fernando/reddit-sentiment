@@ -180,9 +180,133 @@ resource "aws_lambda_function" "sentiment-load" {
   }
 }
 
+
+resource "aws_iam_role" "sentiment-event-bridge-role" {
+  name = "sentiment-event-bridge-role"
+  assume_role_policy = <<POLICY1
+{
+  "Version" : "2012-10-17",
+  "Statement" : [
+    {
+      "Effect" : "Allow",
+      "Principal" : {
+        "Service" : "events.amazonaws.com"
+      },
+      "Action" : "sts:AssumeRole"
+    }
+  ]
+}
+POLICY1
+}
+
+# Create an IAM role for Step Functions State Machine
+resource "aws_iam_role" "sentiment-state-machine-role" {
+  name = "sentiment-state-machine-role"
+  assume_role_policy = <<POLICY2
+{
+  "Version" : "2012-10-17",
+  "Statement" : [
+    {
+      "Effect" : "Allow",
+      "Principal" : {
+        "Service" : "states.amazonaws.com"
+      },
+      "Action" : "sts:AssumeRole"
+    }
+  ]
+}
+POLICY2
+}
+
+# Create an IAM policy for Eventbridge to be able to start a Step Function execution
+resource "aws_iam_policy" "sentiment-event-bridge-policy" {
+  name = "sentiment-event-bridge-policy"
+  policy = <<POLICY3
+{
+  "Version" : "2012-10-17",
+  "Statement" : [
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "states:StartExecution"
+      ],
+      "Resource" : "${aws_sfn_state_machine.sfn_state_machine.arn}"
+    }
+  ]
+}
+POLICY3
+}
+
+# Create an IAM policy to enable Step Function State Machine to push logs to CloudWatch logs
+resource "aws_iam_policy" "sentiment-state-machine-log-delivery-policy" {
+  name = "sentiment-state-machine-log-delivery-policy"
+  policy = <<POLICY4
+{
+  "Version" : "2012-10-17",
+  "Statement" : [
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "logs:CreateLogDelivery",
+        "logs:GetLogDelivery",
+        "logs:UpdateLogDelivery",
+        "logs:DeleteLogDelivery",
+        "logs:ListLogDeliveries",
+        "logs:PutResourcePolicy",
+        "logs:DescribeResourcePolicies",
+        "logs:DescribeLogGroups"
+      ],
+      "Resource" : "*"
+    }
+  ]
+}
+POLICY4
+}
+# Create an IAM policy to enable Step Function State Machine to invoke lambda functions
+resource "aws_iam_policy" "sentiment-state-machine-lambda-policy" {
+  name = "sentiment-state-machine-lambda-policy"
+  policy = <<POLICY5
+{
+  "Version" : "2012-10-17",
+  "Statement" : [
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "lambda:InvokeFunction"
+      ],
+      "Resource" : [
+        "${aws_lambda_function.sentiment-extract.arn}",
+        "${aws_lambda_function.sentiment-load.arn}"
+      ]
+    }
+  ]
+}
+POLICY5
+}
+# Attach the IAM policies to the equivalent rule
+resource "aws_iam_role_policy_attachment" "sentiment-event-bridge-policy-attachment" {
+  role       = aws_iam_role.sentiment-event-bridge-role.name
+  policy_arn = aws_iam_policy.sentiment-event-bridge-policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "sentiment-state-machine-policy-attachment" {
+  role       = aws_iam_role.sentiment-state-machine-role.name
+  policy_arn = aws_iam_policy.sentiment-state-machine-log-delivery-policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "sentiment-state-machine-lambda-policy-attachment" {
+  role       = aws_iam_role.sentiment-state-machine-role.name
+  policy_arn = aws_iam_policy.sentiment-state-machine-lambda-policy.arn
+}
+
+# Create an Log group for the Step Function
+resource "aws_cloudwatch_log_group" "MyLogGroup" {
+  name = "sentiment-log-group"
+}
+
 resource "aws_sfn_state_machine" "sfn_state_machine" {
   name     = "sentiment-step-function"
-  role_arn = aws_iam_role.step_function_role.arn
+  role_arn = aws_iam_role.sentiment-state-machine-role.arn
 
   definition = <<EOF
   {
@@ -202,47 +326,12 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
     }
   }
   EOF
-}
 
-resource "aws_iam_role" "step_function_role" {
-  name               = "sentiment-step-function-role"
-  assume_role_policy = <<-EOF
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Action": "sts:AssumeRole",
-        "Principal": {
-          "Service": "states.amazonaws.com"
-        },
-        "Effect": "Allow",
-        "Sid": "StepFunctionAssumeRole"
-      }
-    ]
+  logging_configuration {
+    log_destination        = "${aws_cloudwatch_log_group.MyLogGroup.arn}:*"
+    include_execution_data = true
+    level                  = "ALL"
   }
-  EOF
-}
-
-resource "aws_iam_role_policy" "step_function_policy" {
-  name    = "sentiment-step-function-policy"
-  role    = aws_iam_role.step_function_role.id
-
-  policy  = <<-EOF
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Action": [
-          "lambda:InvokeFunction"
-        ],
-        "Effect": "Allow",
-        "Resource": ["${aws_lambda_function.sentiment-extract.arn}",
-        "${aws_lambda_function.sentiment-load.arn}"
-        ]
-      }
-    ]
-  }
-  EOF
 }
 
 # Create schedule event rule to use for our step function 
@@ -250,10 +339,12 @@ resource "aws_cloudwatch_event_rule" "sentiment-schedule-step-function" {
   name                = "sentiment-schedule-step-function"
   schedule_expression = "rate(30 minutes)"
   description = "Rule that triggers every 30 minutes, created for the reddit-sentiment project."
+  role_arn = aws_iam_role.sentiment-event-bridge-role.arn
 }
 # Create a schedule target for our schedule rule
 resource "aws_cloudwatch_event_target" "schedule-target-sentiment" {
   rule = aws_cloudwatch_event_rule.sentiment-schedule-step-function.name
   arn  = aws_sfn_state_machine.sfn_state_machine.arn
-  role_arn = aws_iam_role.step_function_role.arn
+  role_arn = aws_iam_role.sentiment-event-bridge-role.arn
 }
+
