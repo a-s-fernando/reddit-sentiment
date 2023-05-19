@@ -410,7 +410,7 @@ resource "aws_ecs_task_definition" "main" {
   }])
 }
 
-
+# Create ecs task role 
 resource "aws_iam_role" "ecs_task_role" {
   name = "${var.name}-ecsTaskRole"
  
@@ -431,6 +431,8 @@ resource "aws_iam_role" "ecs_task_role" {
 EOF
 }
 
+
+# Create ecs task execution
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.name}-ecsTaskExecutionRole"
  
@@ -540,4 +542,9 @@ resource "aws_alb_listener" "https" {
     target_group_arn = aws_alb_target_group.main.id
     type             = "forward"
   }
+}
+
+resource "aws_ecr_repository" "sentiment-dash" {
+  name                 = "sentiment-dash"
+  image_tag_mutability = "MUTABLE"
 }
