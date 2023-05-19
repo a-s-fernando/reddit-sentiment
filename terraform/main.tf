@@ -453,9 +453,7 @@ DEFINITION
 }
 
 
-
-
-# Create ecs task role 
+# Create ECS task role 
 resource "aws_iam_role" "ecs_task_role" {
   name = "sentiment-ecs-task-role"
  
@@ -477,7 +475,7 @@ EOF
 }
 
 
-# Create ecs task execution
+# Create ECS task execution
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "sentiment-ecs-task-execution-role"
  
@@ -498,12 +496,15 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 EOF
 }
  
+
+# Attach Execution Role Policy to task role
 resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 
+# Create ECS service 
 resource "aws_ecs_service" "sentiment-ecs-service" {
  name                               = "sentiment-ecs-service"
  cluster                            = aws_ecs_cluster.sentiment-cluster.id
@@ -532,6 +533,7 @@ resource "aws_ecs_service" "sentiment-ecs-service" {
 }
 
 
+# Creat load balancer
 resource "aws_lb" "sentiment-load-balancer" {
   name               = "sentiment-load-balancer"
   internal           = false
@@ -542,6 +544,8 @@ resource "aws_lb" "sentiment-load-balancer" {
   enable_deletion_protection = false
 }
  
+
+# Create target group for load balancer
 resource "aws_alb_target_group" "sentiment-lb-target-group" {
   name        = "sentiment-lb-target-group"
   port        = 80
@@ -560,6 +564,8 @@ resource "aws_alb_target_group" "sentiment-lb-target-group" {
   }
 }
 
+
+# Create load balancer listner
 resource "aws_alb_listener" "http" {
   load_balancer_arn = aws_lb.sentiment-load-balancer.id
   port              = 80
@@ -572,6 +578,7 @@ resource "aws_alb_listener" "http" {
 }
 
 
+# Create sentiment dash repository
 resource "aws_ecr_repository" "sentiment-dash" {
   name                 = "sentiment-dash"
   image_tag_mutability = "MUTABLE"
