@@ -27,7 +27,7 @@ navbar = dbc.Row(
                                 "height": "80px",
                                 "color": "#f5f5f5",
                                 "font-size": "40px",  # Change this value to your preferred font size
-                                "font-family": "Verdana"  # Change this value to your preferred font type
+                                "font-family": "Helvetica Neue"  # Change this value to your preferred font type
                             }
                         ),
 

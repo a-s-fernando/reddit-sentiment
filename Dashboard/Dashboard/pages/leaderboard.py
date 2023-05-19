@@ -1,8 +1,7 @@
-import dash_html_components as html
-from dash import register_page
+from dash import register_page, html
 
 register_page(__name__, title="Leaderboard", path='/Leaderboard')
 
 layout = html.Div([
-    html.H3('keyword-leaderboard')
+    html.H3('Leaderboard')
 ])
