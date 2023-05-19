@@ -1,0 +1,4 @@
+Dockerfile
+.env
+__pycache__
+pages/__pycache__
