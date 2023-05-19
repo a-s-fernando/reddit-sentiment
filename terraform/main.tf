@@ -381,3 +381,10 @@ resource "aws_cloudwatch_event_target" "schedule-target-sentiment" {
   arn  = aws_sfn_state_machine.sfn_state_machine.arn
   role_arn = aws_iam_role.sentiment-event-bridge-role.arn
 }
+
+
+# Create Elastic Container Service Cluster
+resource "aws_ecs_cluster" "main" {
+  name = "${var.name}-cluster-${var.environment}"
+}
+
