@@ -1,0 +1,20 @@
+.navbar {
+  background-color: #ff5700 !important;
+  /* border-bottom: solid 1px #ccc; */
+}
+
+.container {
+  max-width: 100%;
+  min-width: 100%;
+}
+
+nav.navbar {
+  width: 100%;
+  margin: 0 0 auto 0;
+  z-index: 1024 !important;
+  background-color: var(--gfg-tint-color);
+  box-shadow: 0 15px 10px -15px #1111112b;
+  justify-content: space-between;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
