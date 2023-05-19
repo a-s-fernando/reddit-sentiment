@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import en_core_web_lg
 import nltk
 import boto3
+
 nltk.data.path.append("/tmp")
 nltk.download("vader_lexicon", download_dir="/tmp")
 load_dotenv()
@@ -112,5 +113,7 @@ def lambda_handler(event, context):
         Key=file_name, Body=json.dumps(posts_data))
 
     # Return the posts_data as the response
+
     print("File uploaded.")
     return "Sent data to S3."
+

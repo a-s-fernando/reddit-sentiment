@@ -6,17 +6,18 @@ LOGO = 'https://i.ibb.co/v1SzKZj/social-sleuth.png'
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP], use_pages=True)
 
 navbar = dbc.Row(
+    [
+        dbc.Navbar(
             [
-            dbc.Navbar(
-                    [
-                    # Logo Column
-                    html.Div(
-                        html.A(
-                            html.Img(src=LOGO, height="100px"),
-                            href="/",
-                            style={"textDecoration": "none"},
-                        ),
+                # Logo Column
+                html.Div(
+                    html.A(
+                        html.Img(src=LOGO, height="100px"),
+                        href="/",
+                        style={"textDecoration": "none"},
                     ),
+                ),
+
 
                     # Brand Column
                     html.Div(
@@ -32,40 +33,44 @@ navbar = dbc.Row(
                         ),
 
                         className='text-center',  # add this line to center content
+
                     ),
 
-                    # Navigation Items Column
-                    html.Div(
-                        [
-                            dbc.Nav(
-                                [
-                                    dbc.NavLink(
-                                        "Reddit",
-                                        href="https://www.reddit.com/r/technology/",
-                                        target="_blank",
-                                        style={"color": "#f5f5f5",
-                                               "font-size": "15px",
-                                               "font-family": "Verdana"}
-                                    ),
-                                    dbc.DropdownMenu(
-                                        children=[
-                                            dbc.DropdownMenuItem(
-                                                page["name"],
-                                                href=page["relative_path"],
-                                            )
-                                            for page in page_registry.values()
-                                        ],
-                                        #class_name="mr-1",
-                                        label="Menu",
-                                        align_end=True,
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        ]
+                    className='text-center',  # add this line to center content
+                ),
+
+                # Navigation Items Column
+                html.Div(
+                    [
+                        dbc.Nav(
+                            [
+                                dbc.NavLink(
+                                    "Reddit",
+                                    href="https://www.reddit.com/r/technology/",
+                                    target="_blank",
+                                    style={"color": "#f5f5f5",
+                                           "font-size": "15px",
+                                           "font-family": "Verdana"}
+                                ),
+                                dbc.DropdownMenu(
+                                    children=[
+                                        dbc.DropdownMenuItem(
+                                            page["name"],
+                                            href=page["relative_path"],
+                                        )
+                                        for page in page_registry.values()
+                                    ],
+                                    # class_name="mr-1",
+                                    label="Menu",
+                                    align_end=True,
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ]
 )
 
 
@@ -78,4 +83,4 @@ app.layout = dbc.Container(
 )
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(host="0.0.0.0", debug=True, port=8080)
