@@ -70,6 +70,12 @@ variable "bucket_name" {
   type = string
 }
 
+variable "host" {
+  description = "Database host."
+  type = string
+}
+
+
 
 # Configure AWS provider
 provider "aws" {
@@ -380,4 +386,200 @@ resource "aws_cloudwatch_event_target" "schedule-target-sentiment" {
   rule = aws_cloudwatch_event_rule.sentiment-schedule-step-function.name
   arn  = aws_sfn_state_machine.sfn_state_machine.arn
   role_arn = aws_iam_role.sentiment-event-bridge-role.arn
+}
+
+
+# Create Elastic Container Service Cluster
+resource "aws_ecs_cluster" "sentiment-cluster" {
+  name = "sentiment-cluster"
+}
+
+
+# Create Elastic Container Service task
+resource "aws_ecs_task_definition" "sentiment-task" {
+  family = "sentiment-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = 256
+  memory                   = 512
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
+  container_definitions = <<DEFINITION
+[
+  {
+    "image": "605126261673.dkr.ecr.eu-west-2.amazonaws.com/sentiment-dash:latest",
+    "name": "sentiment-dash-container",
+    "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-region" : "eu-west-2",
+                    "awslogs-group" : "sentiment-log-group",
+                    "awslogs-stream-prefix" : "dash"
+                }
+            },
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "protocol": "tcp",
+        "hostPort": 8080
+      }
+    ],
+    "environment": [
+            {
+                "name": "USERNAME",
+                "value": "${var.username}"
+            },
+            {
+                "name": "PASSWORD",
+                "value": "${var.password}"
+            },
+            {
+                "name": "HOST",
+                "value": "${var.host}"
+            },
+            {
+                "name": "DATABASE",
+                "value": "${var.database_name}"
+            }
+        ]
+    }
+  
+]
+DEFINITION
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64"
+  }
+}
+
+
+# Create ECS task role 
+resource "aws_iam_role" "ecs_task_role" {
+  name = "sentiment-ecs-task-role"
+ 
+  assume_role_policy = <<EOF
+{
+ "Version": "2012-10-17",
+ "Statement": [
+   {
+     "Action": "sts:AssumeRole",
+     "Principal": {
+       "Service": "ecs-tasks.amazonaws.com"
+     },
+     "Effect": "Allow",
+     "Sid": ""
+   }
+ ]
+}
+EOF
+}
+
+
+# Create ECS task execution
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "sentiment-ecs-task-execution-role"
+ 
+  assume_role_policy = <<EOF
+{
+ "Version": "2012-10-17",
+ "Statement": [
+   {
+     "Action": "sts:AssumeRole",
+     "Principal": {
+       "Service": "ecs-tasks.amazonaws.com"
+     },
+     "Effect": "Allow",
+     "Sid": ""
+   }
+ ]
+}
+EOF
+}
+ 
+
+# Attach Execution Role Policy to task role
+resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+
+# Create ECS service 
+resource "aws_ecs_service" "sentiment-ecs-service" {
+ name                               = "sentiment-ecs-service"
+ cluster                            = aws_ecs_cluster.sentiment-cluster.id
+ task_definition                    = aws_ecs_task_definition.sentiment-task.arn
+ desired_count                      = 1
+ deployment_minimum_healthy_percent = 50
+ deployment_maximum_percent         = 200
+ launch_type                        = "FARGATE"
+ scheduling_strategy                = "REPLICA"
+ 
+ network_configuration {
+   security_groups  = [data.aws_security_group.c7-remote-access.id]
+   subnets          = data.aws_db_subnet_group.c7-subnets.subnet_ids
+   assign_public_ip = true
+ }
+ 
+ load_balancer {
+   target_group_arn = aws_alb_target_group.sentiment-lb-target-group.arn
+   container_name   = "sentiment-dash-container"
+   container_port   = "8080"
+ }
+ 
+ lifecycle {
+   ignore_changes = [task_definition, desired_count]
+ }
+}
+
+
+# Creat load balancer
+resource "aws_lb" "sentiment-load-balancer" {
+  name               = "sentiment-load-balancer"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [data.aws_security_group.c7-remote-access.id]
+  subnets            = data.aws_db_subnet_group.c7-subnets.subnet_ids
+ 
+  enable_deletion_protection = false
+}
+ 
+
+# Create target group for load balancer
+resource "aws_alb_target_group" "sentiment-lb-target-group" {
+  name        = "sentiment-lb-target-group"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.c7-vpc.id
+  target_type = "ip"
+ 
+  health_check {
+   healthy_threshold   = "3"
+   interval            = "30"
+   protocol            = "HTTP"
+   matcher             = "200"
+   timeout             = "3"
+   path                = "/"
+   unhealthy_threshold = "2"
+  }
+}
+
+
+# Create load balancer listner
+resource "aws_alb_listener" "http" {
+  load_balancer_arn = aws_lb.sentiment-load-balancer.id
+  port              = 80
+  protocol          = "HTTP"
+ 
+  default_action {
+   type = "forward"
+   target_group_arn = aws_alb_target_group.sentiment-lb-target-group.arn
+  }
+}
+
+
+# Create sentiment dash repository
+resource "aws_ecr_repository" "sentiment-dash" {
+  name                 = "sentiment-dash"
+  image_tag_mutability = "MUTABLE"
 }
