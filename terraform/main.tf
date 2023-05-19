@@ -70,6 +70,12 @@ variable "bucket_name" {
   type = string
 }
 
+variable "host" {
+  description = "Database host."
+  type = string
+}
+
+
 
 # Configure AWS provider
 provider "aws" {
@@ -384,35 +390,74 @@ resource "aws_cloudwatch_event_target" "schedule-target-sentiment" {
 
 
 # Create Elastic Container Service Cluster
-resource "aws_ecs_cluster" "main" {
-  name = "${var.name}-cluster-${var.environment}"
+resource "aws_ecs_cluster" "sentiment-cluster" {
+  name = "sentiment-cluster"
 }
 
 
 # Create Elastic Container Service task
-resource "aws_ecs_task_definition" "main" {
+resource "aws_ecs_task_definition" "sentiment-task" {
+  family = "sentiment-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
   memory                   = 512
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
-  container_definitions = jsonencode([{
-   name        = "${var.name}-container-${var.environment}"
-   image       = "${var.container_image}:latest"
-   essential   = true
-   environment = var.container_environment
-   portMappings = [{
-     protocol      = "tcp"
-     containerPort = var.container_port
-     hostPort      = var.container_port
-   }]
-  }])
+  container_definitions = <<DEFINITION
+[
+  {
+    "image": "605126261673.dkr.ecr.eu-west-2.amazonaws.com/sentiment-dash:latest",
+    "name": "sentiment-dash-container",
+    "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-region" : "eu-west-2",
+                    "awslogs-group" : "sentiment-log-group",
+                    "awslogs-stream-prefix" : "dash"
+                }
+            },
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "protocol": "tcp",
+        "hostPort": 8080
+      }
+    ],
+    "environment": [
+            {
+                "name": "USERNAME",
+                "value": "${var.username}"
+            },
+            {
+                "name": "PASSWORD",
+                "value": "${var.password}"
+            },
+            {
+                "name": "HOST",
+                "value": "${var.host}"
+            },
+            {
+                "name": "DATABASE",
+                "value": "${var.database_name}"
+            }
+        ]
+    }
+  
+]
+DEFINITION
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64"
+  }
 }
+
+
+
 
 # Create ecs task role 
 resource "aws_iam_role" "ecs_task_role" {
-  name = "${var.name}-ecsTaskRole"
+  name = "sentiment-ecs-task-role"
  
   assume_role_policy = <<EOF
 {
@@ -434,7 +479,7 @@ EOF
 
 # Create ecs task execution
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.name}-ecsTaskExecutionRole"
+  name = "sentiment-ecs-task-execution-role"
  
   assume_role_policy = <<EOF
 {
@@ -459,26 +504,26 @@ resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attach
 }
 
 
-resource "aws_ecs_service" "main" {
- name                               = "${var.name}-service-${var.environment}"
- cluster                            = aws_ecs_cluster.main.id
- task_definition                    = aws_ecs_task_definition.main.arn
- desired_count                      = 2
+resource "aws_ecs_service" "sentiment-ecs-service" {
+ name                               = "sentiment-ecs-service"
+ cluster                            = aws_ecs_cluster.sentiment-cluster.id
+ task_definition                    = aws_ecs_task_definition.sentiment-task.arn
+ desired_count                      = 1
  deployment_minimum_healthy_percent = 50
  deployment_maximum_percent         = 200
  launch_type                        = "FARGATE"
  scheduling_strategy                = "REPLICA"
  
  network_configuration {
-   security_groups  = var.ecs_service_security_groups
-   subnets          = var.subnets.*.id
-   assign_public_ip = false
+   security_groups  = [data.aws_security_group.c7-remote-access.id]
+   subnets          = data.aws_db_subnet_group.c7-subnets.subnet_ids
+   assign_public_ip = true
  }
  
  load_balancer {
-   target_group_arn = var.aws_alb_target_group_arn
-   container_name   = "${var.name}-container-${var.environment}"
-   container_port   = var.container_port
+   target_group_arn = aws_alb_target_group.sentiment-lb-target-group.arn
+   container_name   = "sentiment-dash-container"
+   container_port   = "8080"
  }
  
  lifecycle {
@@ -486,21 +531,22 @@ resource "aws_ecs_service" "main" {
  }
 }
 
-resource "aws_lb" "main" {
-  name               = "${var.name}-alb-${var.environment}"
+
+resource "aws_lb" "sentiment-load-balancer" {
+  name               = "sentiment-load-balancer"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = var.alb_security_groups
-  subnets            = var.subnets.*.id
+  security_groups    = [data.aws_security_group.c7-remote-access.id]
+  subnets            = data.aws_db_subnet_group.c7-subnets.subnet_ids
  
   enable_deletion_protection = false
 }
  
-resource "aws_alb_target_group" "main" {
-  name        = "${var.name}-tg-${var.environment}"
+resource "aws_alb_target_group" "sentiment-lb-target-group" {
+  name        = "sentiment-lb-target-group"
   port        = 80
   protocol    = "HTTP"
-  vpc_id      = var.vpc_id
+  vpc_id      = data.aws_vpc.c7-vpc.id
   target_type = "ip"
  
   health_check {
@@ -509,40 +555,22 @@ resource "aws_alb_target_group" "main" {
    protocol            = "HTTP"
    matcher             = "200"
    timeout             = "3"
-   path                = var.health_check_path
+   path                = "/"
    unhealthy_threshold = "2"
   }
 }
 
 resource "aws_alb_listener" "http" {
-  load_balancer_arn = aws_lb.main.id
+  load_balancer_arn = aws_lb.sentiment-load-balancer.id
   port              = 80
   protocol          = "HTTP"
  
   default_action {
-   type = "redirect"
- 
-   redirect {
-     port        = 443
-     protocol    = "HTTPS"
-     status_code = "HTTP_301"
-   }
+   type = "forward"
+   target_group_arn = aws_alb_target_group.sentiment-lb-target-group.arn
   }
 }
- 
-resource "aws_alb_listener" "https" {
-  load_balancer_arn = aws_lb.main.id
-  port              = 443
-  protocol          = "HTTPS"
- 
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = var.alb_tls_cert_arn
- 
-  default_action {
-    target_group_arn = aws_alb_target_group.main.id
-    type             = "forward"
-  }
-}
+
 
 resource "aws_ecr_repository" "sentiment-dash" {
   name                 = "sentiment-dash"
