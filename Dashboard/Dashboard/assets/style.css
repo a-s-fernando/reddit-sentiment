@@ -18,3 +18,7 @@ nav.navbar {
   padding-left: 1rem;
   padding-right: 1rem;
 }
+
+.accordion-button {
+  font-size: large;
+}
