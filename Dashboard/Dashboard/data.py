@@ -1,17 +1,19 @@
 import os
 import pandas as pd
 from sqlalchemy import URL, create_engine
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def build_dataframe() -> pd.DataFrame:
     """Build a dataframe from downloaded parquet files and returns them clean.
     Falls back on csv files."""
     url_object = URL.create(
         "postgresql+psycopg2",
-        username=os.environ['USERNAME'],
-        password=os.environ['PASSWORD'],
-        host=os.environ['HOST'],
-        database=os.environ['DATABASE']
+        username=os.environ.get('USERNAME'),
+        password=os.environ.get('PASSWORD'),
+        host=os.environ.get('HOST'),
+        database=os.environ.get('DATABASE')
     )
     engine = create_engine(url_object)
 

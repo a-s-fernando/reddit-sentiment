@@ -18,17 +18,22 @@ navbar = dbc.Row(
                     ),
                 ),
 
-                # Brand Column
-                html.Div(
-                    dbc.NavbarBrand(
-                        "Sentiment Analytics",
-                        className="d-flex align-items-center",
-                        style={
-                            "height": "80px",
-                            "color": "#f5f5f5",
-                            "font-size": "40px",  # Change this value to your preferred font size
-                            "font-family": "Verdana"  # Change this value to your preferred font type
-                        }
+
+                    # Brand Column
+                    html.Div(
+                        dbc.NavbarBrand(
+                            "Sentiment Analytics",
+                            className="d-flex align-items-center",
+                            style={
+                                "height": "80px",
+                                "color": "#f5f5f5",
+                                "font-size": "40px",  # Change this value to your preferred font size
+                                "font-family": "Helvetica Neue"  # Change this value to your preferred font type
+                            }
+                        ),
+
+                        className='text-center',  # add this line to center content
+
                     ),
 
                     className='text-center',  # add this line to center content
