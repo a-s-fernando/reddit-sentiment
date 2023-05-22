@@ -13,7 +13,7 @@ data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
 
 # Register the page
 register_page(__name__, title="Homepage", path='/')
-random_selector = ["Netflix", "Apple", "OpenAI, ChatGPT"]
+random_selector = ["Apple", "OpenAI, ChatGPT"]
 
 
 def filter_data(keywords):
@@ -29,10 +29,9 @@ def filter_data(keywords):
         # Return the original data if no keywords are provided
         filtered_data = data
     grouped_data = filtered_data.groupby(
-        [filtered_data['comment_time'].dt.date, filtered_data['title']])['sentiment'].mean()
-    grouped_data = grouped_data.to_frame().reset_index(level=[0, 1])
+        [filtered_data['comment_time'].dt.date])['sentiment'].mean()
+    grouped_data = grouped_data.to_frame().reset_index(level=[0])
     grouped_data['comment_time'] = pd.to_datetime(grouped_data['comment_time'])
-
     return grouped_data
 
 
