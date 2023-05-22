@@ -110,13 +110,13 @@ layout = html.Div(
                                                     justify='center'),
                                                     html.Img(
                                                         id='negative-wordcloud',
-                                                        style={'width': '100%', 'height': 'auto'}
+                                                        style={'width': '100%', 'height': 'auto', 'align': 'center'}
                                                     ),
                                                 ],
                                                 body=True
                                             )
                                         ],
-                                        width=6  # Adjust the width to fit two word clouds side by side
+                                        width=6,  # Adjust the width to fit two word clouds side by side
                                     )
                                 ],
                                 justify="center",

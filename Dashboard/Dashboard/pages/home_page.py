@@ -51,7 +51,7 @@ layout = html.Div([
             dbc.Col(width=3,
                 children=[
                 dcc.DatePickerRange(
-                id="datepicker"                    ,
+                id="datepicker",
                 min_date_allowed=min(data["comment_time"]),
                 max_date_allowed=max(data["comment_time"]),
                 end_date=max(data["comment_time"]),
