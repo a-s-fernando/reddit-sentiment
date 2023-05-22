@@ -1,7 +1,6 @@
 
-import dash_html_components as html
 import dash_bootstrap_components as dbc
-from dash import register_page
+from dash import register_page, html
 
 
 register_page(__name__, title="Our Team", path='/about_us')
