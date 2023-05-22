@@ -32,7 +32,6 @@ layout = html.Div([
                                             ]
                                         ),
                                     ],
-                                    style={"width": "22rem"}
                                 )
                             ],
                                 width="auto"),
@@ -55,7 +54,6 @@ layout = html.Div([
                                             ]
                                         ),
                                     ],
-                                    style={"width": "22rem"},
                                 )
                             ],
                                 width="auto"),
@@ -78,7 +76,6 @@ layout = html.Div([
                                             ]
                                         ),
                                     ],
-                                    style={"width": "22rem"},
                                 )
                             ],
                                 width="auto")
