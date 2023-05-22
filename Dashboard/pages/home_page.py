@@ -13,7 +13,7 @@ data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
 
 # Register the page
 register_page(__name__, title="Homepage", path='/')
-random_selector = ["Netflix", "Apple", "OpenAI", "ChatGPT"]
+random_selector = ["Netflix", "Apple", "OpenAI, ChatGPT"]
 
 
 def filter_data(keywords):
