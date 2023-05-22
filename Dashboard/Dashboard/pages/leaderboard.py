@@ -130,3 +130,4 @@ def generate_leaderboard(value):
     )
 
     return fig
+
