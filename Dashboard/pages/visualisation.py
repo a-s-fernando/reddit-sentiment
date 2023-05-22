@@ -1,59 +1,94 @@
+"""wordcloud visualisations page for dash application"""
 from io import BytesIO
 import base64
-from dash import register_page, dcc, html, callback
-import json
+from dash import register_page, html, callback
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from data import build_dataframe
-import plotly.express as px
 import pandas as pd
 from PIL import Image
 import numpy as np
+from numpy import ndarray
 from wordcloud import WordCloud
-import matplotlib.pyplot as plt
+from pandas import DataFrame
+
 
 register_page(__name__, title="Visualisations", path='/Visualisation')
 DATA = build_dataframe()  # Load the data (replace with your actual data loading code)
 
 
-def dataframe_to_string(dataframe: pd.DataFrame) -> str:
-    """Turns a column of strings into one string"""
-    text = ''
+def dataframe_to_set(dataframe: DataFrame) -> set[str]:
+    """Turns a column of strings into one set of strings"""
+    entries = set()
     for ind in dataframe.index:
-        text += dataframe['comment_keyword'][ind] + ' '
-    return text[:-1]
+        entries.add(dataframe['comment_keyword'][ind])
+    return entries
 
-def filter_dataframe(df: pd.DataFrame, keyword: str, positive: bool) -> pd.DataFrame:
+
+def dataframe_to_list(dataframe: DataFrame) -> list[str]:
+    """Turns a column of strings into one list of strings"""
+    entries = []
+    for ind in dataframe.index:
+        entries.append(dataframe['comment_keyword'][ind])
+    return entries
+
+
+def filter_dataframe(df: DataFrame, keyword: str, positive: bool) -> DataFrame:
     """returns a dataframe that has been filtered"""
     lower_keyword = keyword.lower()
     if positive:
         series = df['sentiment'] > 0
     else:
         series = df['sentiment'] < 0
-    return df.loc[(df['post_keyword'] == keyword) & (series) & (df['comment_keyword'] != lower_keyword)].reset_index()
+    df = df.drop(df[df['comment_keyword'] == lower_keyword].index)
+    return df.loc[(df['post_keyword'] == keyword) & (series)].reset_index()
 
-def mask_selector(positive: bool):
+
+def mask_selector(positive: bool) -> ndarray:
+    """creates a mask for the wordcloud based on positivity"""
     if positive:
         image = Image.open("./assets/happy.png")
     else:
         image = Image.open("./assets/sad.jpeg")
     return np.array(image)
 
-def key_word_cloud(df: pd.DataFrame, keyword: str, positive: bool):
-    """takes a post keyword and sentiment and produces a wordcloud"""
-    filtered_df = filter_dataframe(df, keyword, positive)
-    text = dataframe_to_string(filtered_df)
-    wc = WordCloud(
+
+def filter_text(filtered, opposite, keyword) -> str:
+    """filters text to make sure both wordclouds have unique words"""
+    text = ''
+    for word in filtered:
+        if (word in opposite) or (keyword.lower() in word) or (len(word) < 1):
+            continue
+        else:
+            text += word + ' '
+    return text[:-1]
+
+
+def generate_wordcloud(text: str, positive: bool) -> WordCloud:
+    """create a wordcloud from text"""
+    return WordCloud(
         mask=mask_selector(positive),
         font_path='./assets/RomanVibes.otf',
         width=800,
         height=600,
         min_font_size=14,
-        background_color="#000000",
-        colormap="gist_rainbow_r"
+        background_color="#ffffff",
+        colormap="autumn"
     ).generate(text)
 
-    return wc
+
+def key_word_cloud(df: DataFrame, keyword: str, positive: bool):
+    """takes a post keyword and sentiment and produces a wordcloud"""
+    filtered_df = filter_dataframe(df, keyword, positive)
+    if positive:
+        opposite_df = filter_dataframe(df, keyword, False)
+    else:
+        opposite_df = filter_dataframe(df, keyword, True)
+    opposite = dataframe_to_set(opposite_df)
+    filtered = dataframe_to_list(filtered_df)
+    text = filter_text(filtered, opposite, keyword)
+    word_cloud = generate_wordcloud(text, positive)
+    return word_cloud
 
 
 layout = html.Div(
@@ -71,7 +106,7 @@ layout = html.Div(
                                             dbc.Input(
                                                 id='input',
                                                 type='text',
-                                                placeholder='Enter keywords (comma-separated)',
+                                                placeholder='Enter keyword',
                                             )
                                         ]
                                     ),
@@ -133,7 +168,6 @@ layout = html.Div(
 )
 
 
-
 @callback(
     Output('positive-wordcloud', 'src'),
     Output('negative-wordcloud', 'src'),
@@ -148,8 +182,3 @@ def update_wordclouds(n_clicks, keyword):
         return 'data:image/png;base64,{}'.format(base64.b64encode(positive_img.getvalue()).decode()), 'data:image/png;base64,{}'.format(base64.b64encode(negative_img.getvalue()).decode())
     else:
         return None, None
-
-
-# if __name__ == "__main__":
-#     DATA = build_dataframe()
-#     key_word_cloud(DATA, 'happy', sentiment=True)
