@@ -4,13 +4,18 @@ import os
 import json
 import psycopg2
 import boto3
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DB_HOST=os.environ.get('DB_HOST')
-DB_PORT=int(os.environ.get('DB_PORT'))
+DB_PORT=os.environ.get('DB_PORT')
 DB_NAME=os.environ.get('DB_NAME')
 DB_USER=os.environ.get('DB_USER')
 DB_PASSWORD = os.environ.get('DB_PASSWORD')
 FILE_NAME = "posts_data.json"
+
+print(DB_HOST, DB_PORT, DB_NAME, DB_USER)
 
 def lambda_handler(event, context):
     # Establish database connection
