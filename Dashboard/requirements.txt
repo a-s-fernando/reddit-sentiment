@@ -1,0 +1,9 @@
+sqlalchemy
+psycopg2-binary
+dash
+dash-bootstrap-components
+numpy
+plotly
+pandas
+wordcloud
+matplotlib

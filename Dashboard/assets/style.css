@@ -18,3 +18,29 @@ nav.navbar {
   padding-left: 1rem;
   padding-right: 1rem;
 }
+
+.accordion-button {
+  font-size: large;
+}
+
+.card {
+  width: 22rem;
+}
+
+@media (max-width: 1600px) {
+  .card {
+    width: 18rem;
+  }
+}
+
+@media (max-width: 1300px) {
+  .card {
+    width: 14rem;
+  }
+}
+
+@media (max-width: 1100px) {
+  .card {
+    width: 12rem;
+  }
+}
