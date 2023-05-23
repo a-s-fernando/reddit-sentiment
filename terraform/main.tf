@@ -109,7 +109,7 @@ data "aws_security_group" "c7-remote-access" {
 resource "aws_db_instance" "sentiment-db" {
   identifier        = "sentiment-db"
   engine            = "postgres"
-  engine_version    = "14.1"
+  engine_version    = "14.3"
   instance_class    = "db.t3.micro"
   allocated_storage = 20
   username          = var.username
@@ -558,7 +558,7 @@ resource "aws_alb_target_group" "sentiment-lb-target-group" {
    interval            = "30"
    protocol            = "HTTP"
    matcher             = "200"
-   timeout             = "3"
+   timeout             = "120"
    path                = "/"
    unhealthy_threshold = "2"
   }
