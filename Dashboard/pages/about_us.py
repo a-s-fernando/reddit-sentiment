@@ -15,8 +15,8 @@ layout = html.Div([
                     dbc.Row(
                         [
                             dbc.Col([
-                                dbc.Card(
-                                    [
+                                dbc.Card(class_name="about-us",
+                                    children=[
                                         dbc.CardImg(
                                             src="https://ca.slack-edge.com/T04KPHPF6E8-U04KP1HH858-3a7173cf3c7a-512", top=True),
                                         dbc.CardBody(
@@ -37,8 +37,8 @@ layout = html.Div([
                                 width="auto"),
 
                             dbc.Col([
-                                dbc.Card(
-                                    [
+                                dbc.Card(class_name="about-us",
+                                    children=[
                                         dbc.CardImg(
                                             src="https://ca.slack-edge.com/T04KPHPF6E8-U04K8F5CLUF-004369590d12-512", top=True),
                                         dbc.CardBody(
@@ -59,8 +59,8 @@ layout = html.Div([
                                 width="auto"),
 
                             dbc.Col([
-                                dbc.Card(
-                                    [
+                                dbc.Card(class_name="about-us",
+                                    children=[
                                         dbc.CardImg(
                                             src="https://ca.slack-edge.com/T04KPHPF6E8-U04KP1J15M0-edb3e7e72dae-512", top=True),
                                         dbc.CardBody(
