@@ -112,7 +112,8 @@ layout = html.Div(
                                     ),
                                     dbc.Col(
                                         [
-                                            dbc.Button('Search', id='search-button', color="primary", n_clicks=0)
+                                            dbc.Button(
+                                                'Search', id='search-button', color="primary", n_clicks=0)
                                         ]
                                     ),
                                 ]
@@ -123,11 +124,13 @@ layout = html.Div(
                                         [
                                             dbc.Card(
                                                 [
-                                                    html.H4("Positive Word Cloud"),
+                                                    html.H4(
+                                                        "Positive Word Cloud"),
 
                                                     html.Img(
                                                         id='positive-wordcloud',
-                                                        style={'width': '100%', 'height': 'auto'}
+                                                        style={
+                                                            'width': '100%', 'height': 'auto'}
                                                     ),
                                                 ],
                                                 body=True
@@ -140,12 +143,14 @@ layout = html.Div(
                                             dbc.Card(
                                                 [
                                                     dbc.Row([
-                                                        html.H4("Negative Word Cloud"),
+                                                        html.H4(
+                                                            "Negative Word Cloud"),
                                                     ],
-                                                    justify='center'),
+                                                        justify='center'),
                                                     html.Img(
                                                         id='negative-wordcloud',
-                                                        style={'width': '100%', 'height': 'auto'}
+                                                        style={
+                                                            'width': '100%', 'height': 'auto'}
                                                     ),
                                                 ],
                                                 body=True
@@ -171,14 +176,16 @@ layout = html.Div(
 @callback(
     Output('positive-wordcloud', 'src'),
     Output('negative-wordcloud', 'src'),
-    Input('search-button','n_clicks'),
+    Input('search-button', 'n_clicks'),
     State('input', 'value')
 )
 def update_wordclouds(n_clicks, keyword):
     if n_clicks > 0 and keyword:
         positive_img, negative_img = BytesIO(), BytesIO()
-        key_word_cloud(DATA, keyword, positive=True).to_image().save(positive_img, format='PNG')
-        key_word_cloud(DATA, keyword, positive=False).to_image().save(negative_img, format='PNG')
+        key_word_cloud(DATA, keyword, positive=True).to_image().save(
+            positive_img, format='PNG')
+        key_word_cloud(DATA, keyword, positive=False).to_image().save(
+            negative_img, format='PNG')
         return 'data:image/png;base64,{}'.format(base64.b64encode(positive_img.getvalue()).decode()), 'data:image/png;base64,{}'.format(base64.b64encode(negative_img.getvalue()).decode())
     else:
         return None, None
