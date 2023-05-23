@@ -34,40 +34,81 @@ def filter_data(keywords):
     grouped_data['comment_time'] = pd.to_datetime(grouped_data['comment_time'])
     return grouped_data
 
+layout = html.Div(
+    [
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H3('Homepage'),
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    dbc.Input(
+                                        id='input',
+                                        type='text',
+                                        placeholder='Enter keywords (comma-separated)',
+                                        value=random.choice(random_selector)
+                                    )
+                                ]
+                            ),
+                            dbc.Col(
+                                [
+                                    dbc.Button('Search', id='search-button', color="primary", n_clicks=0)
+                                ]
+                            ),
+                        ]
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    dbc.Card(
+                                        [
+                                            dbc.CardBody(
+                                                [
+                                                    dcc.DatePickerRange(
+                                                        id="datepicker",
+                                                        min_date_allowed=min(data["comment_time"].dt.date),
+                                                        end_date=max(data["comment_time"].dt.date),
+                                                        start_date=min(data["comment_time"].dt.date),
+                                                        clearable=False,
+                                                    ),
+                                                ]
+                                            )
+                                        ],
+                                        body=True,
+                                        className="mb-3"
+                                    )
+                                ],
+                                width=3,
+                            ),
+                            dbc.Col(
+                                [
+                                    dbc.Card(
+                                        [
+                                            dbc.CardBody(
+                                                [
+                                                    dcc.Graph(id="time-graph")
+                                                ]
+                                            )
+                                        ],
+                                        body=True
+                                    )
+                                ],
+                                width=9  # Adjust the width to make it wider
+                            )
+                        ],
+                        className="mb-3",
+                    )
+                ]
+            ),
+            className="w-100",
+        )
+    ]
+)
 
-layout = html.Div([
-    html.H3('Homepage'),
-    dbc.Row([
-            dbc.Col([
-                dbc.Input(
-                    id='input',
-                    type='text',
-                    placeholder='Enter keywords (comma-separated)',
-                    value=random.choice(random_selector)
-                )
-            ]),
-            dbc.Col([
-                dbc.Button('Search', id='search-button',
-                           color="primary", n_clicks=0)
-            ]),
-            ]),
 
-    dbc.Row([
-            dbc.Col(width=3,
-                    children=[
-                        dcc.DatePickerRange(
-                            id="datepicker",
-                            min_date_allowed=min(data["comment_time"].dt.date),
-                            end_date=max(data["comment_time"].dt.date),
-                            start_date=min(data["comment_time"].dt.date),
-                            clearable=False,
-                        ),
-                    ]),
-            dbc.Col([
-                dcc.Graph(id="time-graph")
-            ])
-            ]),
-])
 
 
 @callback(
