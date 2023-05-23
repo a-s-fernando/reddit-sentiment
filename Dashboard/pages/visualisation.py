@@ -35,13 +35,13 @@ def dataframe_to_list(dataframe: DataFrame) -> list[str]:
 
 def filter_dataframe(df: DataFrame, keyword: str, positive: bool) -> DataFrame:
     """returns a dataframe that has been filtered"""
-    lower_keyword = keyword.lower()
     if positive:
         series = df['sentiment'] > 0
     else:
         series = df['sentiment'] < 0
-    df = df.drop(df[df['comment_keyword'] == lower_keyword].index)
-    return df.loc[(df['post_keyword'] == keyword) & (series)].reset_index()
+    df = df.drop(
+        df[df['comment_keyword'].str.contains(f"{keyword} | fucking | fuck | fucks | shit | shitty", case=False)].index)
+    return df.loc[(df['post_keyword'].str.contains(keyword, case=False) & (series))].reset_index()
 
 
 def mask_selector(positive: bool) -> ndarray:
@@ -107,6 +107,7 @@ layout = html.Div(
                                                 id='input',
                                                 type='text',
                                                 placeholder='Enter keyword',
+                                                value='Apple'
                                             )
                                         ]
                                     ),
@@ -180,7 +181,7 @@ layout = html.Div(
     State('input', 'value')
 )
 def update_wordclouds(n_clicks, keyword):
-    if n_clicks > 0 and keyword:
+    if keyword:
         positive_img, negative_img = BytesIO(), BytesIO()
         key_word_cloud(DATA, keyword, positive=True).to_image().save(
             positive_img, format='PNG')
