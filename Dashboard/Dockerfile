@@ -14,6 +14,7 @@ COPY pages pages
 COPY assets assets
 COPY dash_app.py .
 COPY data.py .
+COPY swearWords.txt .
 
 ########################################################################################
 # Allow statements and log messages to immediately appear in the Knative CloudWatch logs

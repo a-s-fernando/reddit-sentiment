@@ -12,6 +12,11 @@ from numpy import ndarray
 from wordcloud import WordCloud
 from pandas import DataFrame
 
+with open("./swearWords.txt") as swears:
+    ban_words = []
+    for word in swears.readlines():
+        ban_words.append(word.strip())
+
 
 register_page(__name__, title="Visualisations", path='/Visualisation')
 DATA = build_dataframe()  # Load the data (replace with your actual data loading code)
@@ -33,14 +38,18 @@ def dataframe_to_list(dataframe: DataFrame) -> list[str]:
     return entries
 
 
-def filter_dataframe(df: DataFrame, keyword: str, positive: bool) -> DataFrame:
+def filter_dataframe(df: DataFrame, keyword: str, positive: bool, swears: bool = False) -> DataFrame:
     """returns a dataframe that has been filtered"""
     if positive:
         series = df['sentiment'] > 0
     else:
         series = df['sentiment'] < 0
+    to_filter = []
+    if not swears:
+        to_filter = ban_words
+    to_filter.append(keyword)
     df = df.drop(
-        df[df['comment_keyword'].str.contains(f"{keyword} | fucking | fuck | fucks | shit | shitty", case=False)].index)
+        df[df['comment_keyword'].str.contains("|".join(to_filter), case=False)].index)
     return df.loc[(df['post_keyword'].str.contains(keyword, case=False) & (series))].reset_index()
 
 
@@ -77,9 +86,22 @@ def generate_wordcloud(text: str, positive: bool) -> WordCloud:
     ).generate(text)
 
 
-def key_word_cloud(df: DataFrame, keyword: str, positive: bool):
+radioitems = dbc.RadioItems(
+    options=[
+        {"label": "Show Swears", "value": 1},
+        {"label": "Filter Swears", "value": -1},
+    ],
+    value=-1,
+    id="radioitems",
+)
+
+
+def key_word_cloud(df: DataFrame, keyword: str, positive: bool, swears: bool = False):
     """takes a post keyword and sentiment and produces a wordcloud"""
-    filtered_df = filter_dataframe(df, keyword, positive)
+    if swears:
+        filtered_df = filter_dataframe(df, keyword, positive, swears=True)
+    else:
+        filtered_df = filter_dataframe(df, keyword, positive)
     if positive:
         opposite_df = filter_dataframe(df, keyword, False)
     else:
@@ -115,6 +137,11 @@ layout = html.Div(
                                         [
                                             dbc.Button(
                                                 'Search', id='search-button', color="primary", n_clicks=0)
+                                        ]
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            radioitems
                                         ]
                                     ),
                                 ]
@@ -178,14 +205,19 @@ layout = html.Div(
     Output('positive-wordcloud', 'src'),
     Output('negative-wordcloud', 'src'),
     Input('search-button', 'n_clicks'),
+    Input('radioitems', 'value'),
     State('input', 'value')
 )
-def update_wordclouds(n_clicks, keyword):
+def update_wordclouds(n_clicks, swears, keyword):
     if keyword:
         positive_img, negative_img = BytesIO(), BytesIO()
-        key_word_cloud(DATA, keyword, positive=True).to_image().save(
+        show_swears = False
+        if swears == 1:
+            show_swears = True
+
+        key_word_cloud(DATA, keyword, positive=True, swears=show_swears).to_image().save(
             positive_img, format='PNG')
-        key_word_cloud(DATA, keyword, positive=False).to_image().save(
+        key_word_cloud(DATA, keyword, positive=False, swears=show_swears).to_image().save(
             negative_img, format='PNG')
         return 'data:image/png;base64,{}'.format(base64.b64encode(positive_img.getvalue()).decode()), 'data:image/png;base64,{}'.format(base64.b64encode(negative_img.getvalue()).decode())
     else:
