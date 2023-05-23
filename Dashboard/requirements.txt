@@ -9,3 +9,4 @@ plotly
 pandas
 wordcloud
 matplotlib
+boto3

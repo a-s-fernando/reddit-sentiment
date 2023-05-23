@@ -1,3 +1,5 @@
+import os
+import json
 from dash import register_page, dcc, html, callback
 from data import build_dataframe
 from datetime import datetime
@@ -7,28 +9,49 @@ import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
 import spacy
+import boto3
 
+BUCKET_NAME = os.environ.get("bucket_name")
+s3 = boto3.resource(service_name='s3', region_name=os.environ.get("region_name"),
+                    aws_access_key_id=os.environ.get("access_key"), aws_secret_access_key=os.environ.get("secret_access_key"))
+BUCKET = s3.Bucket(BUCKET_NAME)
 nlp = spacy.load('en_core_web_sm')
+data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
+
+cache = None
+try:
+    BUCKET.download_file("cache.json", '/tmp/cache.json')
+    with open("/tmp/cache.json") as cache_file:
+        cache = json.loads(cache_file.read())
+except:
+    cache = {}
+
 
 register_page(__name__, title="Leaderboard", path='/Leaderboard')
 
-data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
-
 
 def is_organisation(x):
+    global cache
     if x == 'Bi-Weekly':
         return None
-    doc = nlp(x)
-    if len(doc.ents) == 0:
-        return None
-    entity = doc.ents[0]
-    if entity.label_ != 'ORG':
-        return None
-    return entity.text
+    if x not in cache:
+        doc = nlp(x)
+        if len(doc.ents) == 0:
+            return None
+        entity = doc.ents[0]
+        cache[x] = entity.label_
+        if entity.label_ != 'ORG':
+            return None
+        return x
+    if cache[x] == 'ORG':
+        return x
+    return None
 
 
 data['post_keyword'] = data['post_keyword'].apply(is_organisation)
 data.dropna()
+BUCKET.put_object(
+    Key="cache.json", Body=json.dumps(cache))
 
 
 def filter_data(filtered_data):
