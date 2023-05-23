@@ -11,6 +11,7 @@ import spacy
 nlp = spacy.load('en_core_web_sm')
 
 register_page(__name__, title="Leaderboard", path='/Leaderboard')
+
 data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
 
 
@@ -25,12 +26,15 @@ def is_organisation(x):
         return None
     return entity.text
 
+
 data['post_keyword'] = data['post_keyword'].apply(is_organisation)
 data.dropna()
 
+
 def filter_data(filtered_data):
-    grouped_data = filtered_data.groupby([filtered_data['comment_time'].dt.date, filtered_data['post_keyword']])['sentiment'].mean()
-    grouped_data = grouped_data.to_frame().reset_index(level=[0,1])
+    grouped_data = filtered_data.groupby(
+        [filtered_data['comment_time'].dt.date, filtered_data['post_keyword']])['sentiment'].mean()
+    grouped_data = grouped_data.to_frame().reset_index(level=[0, 1])
     grouped_data['comment_time'] = pd.to_datetime(grouped_data['comment_time'])
     return grouped_data
 
@@ -75,7 +79,8 @@ layout = html.Div(
                                                 [
                                                     dcc.Graph(
                                                         id='graph',
-                                                        style={'width': '100%', 'height': 'auto'}
+                                                        style={
+                                                            'width': '100%', 'height': 'auto'}
                                                     ),
                                                 ]
                                             )
@@ -95,7 +100,6 @@ layout = html.Div(
     ],
     style={"color": "#000000"}
 )
-
 
 
 @callback(
@@ -118,10 +122,12 @@ def generate_leaderboard(value):
     fig = go.Figure()
 
     for organization in leaders:
-        organization_data = grouped_data[grouped_data['post_keyword'] == organization]
+        organization_data = grouped_data[grouped_data['post_keyword']
+                                         == organization]
         # Check if the organization has more than one data point
         if len(organization_data) > 1:
-            fig.add_trace(go.Scatter(x=organization_data['comment_time'], y=organization_data['sentiment'], name=organization))
+            fig.add_trace(go.Scatter(
+                x=organization_data['comment_time'], y=organization_data['sentiment'], name=organization))
 
     fig.update_layout(
         xaxis_title='Time',
@@ -130,4 +136,3 @@ def generate_leaderboard(value):
     )
 
     return fig
-
