@@ -440,6 +440,22 @@ resource "aws_ecs_task_definition" "sentiment-task" {
             {
                 "name": "DATABASE",
                 "value": "${var.database_name}"
+            },
+            {
+                "name": "bucket_name",
+                "value": "${var.bucket_name}"
+            },
+            {
+                "name": "access_key",
+                "value": "${var.access_key}"
+            },
+            {
+                "name": "secret_access_key",
+                "value": "${var.secret_key}"
+            },
+            {
+                "name": "region_name",
+                "value": "${var.region_name}"
             }
         ]
     }
