@@ -53,7 +53,6 @@ jobs:
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan and Apply
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: |
         terraform plan -input=false -var "username=$USERNAME" -var "password=$PASSWORD" -var "database_name=$DATABASE_NAME" -var "access_key=$ACCESS_KEY" -var "secret_key=$SECRET_KEY" -var "region_name=$REGION_NAME" -var "user_agent=$USER_AGENT" -var "client_id=$CLIENT_ID" -var "client_secret=$CLIENT_SECRET" -var "num_posts=$NUM_POSTS" -var "subreddit_name=$SUBREDDIT_NAME" -var "bucket_name=$BUCKET_NAME" -var "host=$HOST"
         terraform destroy -auto-approve -target "aws_ecs_task_definition.sentiment-task" -var "username=$USERNAME" -var "password=$PASSWORD" -var "database_name=$DATABASE_NAME" -var "access_key=$ACCESS_KEY" -var "secret_key=$SECRET_KEY" -var "region_name=$REGION_NAME" -var "user_agent=$USER_AGENT" -var "client_id=$CLIENT_ID" -var "client_secret=$CLIENT_SECRET" -var "num_posts=$NUM_POSTS" -var "subreddit_name=$SUBREDDIT_NAME" -var "bucket_name=$BUCKET_NAME" -var "host=$HOST"
