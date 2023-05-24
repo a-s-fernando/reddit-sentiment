@@ -94,6 +94,7 @@ radioitems = dbc.RadioItems(
     ],
     value=-1,
     id="radioitems",
+    inline=True
 )
 
 
@@ -121,7 +122,6 @@ layout = html.Div(
                 dbc.Card(
                     dbc.CardBody(
                         [
-                            html.H3('Keyword Visualisations'),
                             dbc.Row(
                                 [
                                     dbc.Col(
@@ -143,10 +143,11 @@ layout = html.Div(
                                     dbc.Col(
                                         [
                                             radioitems
-                                        ]
+                                        ], align="center"
                                     ),
-                                ]
+                                ], justify='center'
                             ),
+
                             dbc.Row(
                                 [
                                     dbc.Col(
