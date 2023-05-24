@@ -39,7 +39,6 @@ layout = html.Div(
         dbc.Card(
             dbc.CardBody(
                 [
-                    html.H3('Homepage'),
                     dbc.Row(
                         [
                             dbc.Col(
