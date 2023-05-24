@@ -464,7 +464,7 @@ resource "aws_ecs_task_definition" "sentiment-task" {
 DEFINITION
   runtime_platform {
     operating_system_family = "LINUX"
-    cpu_architecture        = "ARM64"
+    cpu_architecture        = "X86_64"
   }
 }
 
@@ -525,7 +525,7 @@ resource "aws_ecs_service" "sentiment-ecs-service" {
  name                               = "sentiment-ecs-service"
  cluster                            = aws_ecs_cluster.sentiment-cluster.id
  task_definition                    = aws_ecs_task_definition.sentiment-task.arn
- desired_count                      = 2
+ desired_count                      = 1
  deployment_minimum_healthy_percent = 50
  deployment_maximum_percent         = 200
  launch_type                        = "FARGATE"
@@ -571,7 +571,7 @@ resource "aws_alb_target_group" "sentiment-lb-target-group" {
  
   health_check {
    healthy_threshold   = "3"
-   interval            = "30"
+   interval            = "300"
    protocol            = "HTTP"
    matcher             = "200"
    timeout             = "120"
