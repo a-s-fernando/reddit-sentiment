@@ -1,11 +1,15 @@
 .navbar {
-  background-color: #ff8700 !important;
+  background-color: #003554 !important;
   /* border-bottom: solid 1px #ccc; */
 }
 
 .container {
   max-width: 100%;
   min-width: 100%;
+}
+
+.custom-button {
+  background-color: #00a6fb;
 }
 
 nav.navbar {
