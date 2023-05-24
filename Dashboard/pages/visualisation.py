@@ -4,6 +4,7 @@ import base64
 from dash import register_page, html, callback
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
+import dash_loading_spinners as dls
 from data import build_dataframe
 import pandas as pd
 from PIL import Image
@@ -56,9 +57,9 @@ def filter_dataframe(df: DataFrame, keyword: str, positive: bool, swears: bool =
 def mask_selector(positive: bool) -> ndarray:
     """creates a mask for the wordcloud based on positivity"""
     if positive:
-        image = Image.open("./assets/happy.png")
+        image = Image.open("./assets/uptwo.png")
     else:
-        image = Image.open("./assets/sad.jpeg")
+        image = Image.open("./assets/downtwo.png")
     return np.array(image)
 
 
@@ -155,13 +156,18 @@ layout = html.Div(
                                                     html.H4(
                                                         "Positive Word Cloud"),
 
-                                                    html.Img(
-                                                        id='positive-wordcloud',
-                                                        style={
-                                                            'width': '100%', 'height': 'auto'}
-                                                    ),
+                                                    dls.Hash(
+                                                        html.Img(
+                                                            id='positive-wordcloud',
+                                                            style={
+                                                                'width': '100%', 'min-height': '300px', }
+                                                        ),
+                                                        color="#051923",
+                                                        speed_multiplier=2,
+                                                        size=100,
+                                                    )
                                                 ],
-                                                body=True
+                                                body=True,
                                             )
                                         ],
                                         width=6  # Adjust the width to fit two word clouds side by side
@@ -170,18 +176,21 @@ layout = html.Div(
                                         [
                                             dbc.Card(
                                                 [
-                                                    dbc.Row([
-                                                        html.H4(
-                                                            "Negative Word Cloud"),
-                                                    ],
-                                                        justify='center'),
-                                                    html.Img(
-                                                        id='negative-wordcloud',
-                                                        style={
-                                                            'width': '100%', 'height': 'auto'}
-                                                    ),
+                                                    html.H4(
+                                                        "Negative Word Cloud"),
+
+                                                    dls.Hash(
+                                                        html.Img(
+                                                            id='negative-wordcloud',
+                                                            style={
+                                                                'width': '100%', 'min-height': '300px'}
+                                                        ),
+                                                        color="#051923",
+                                                        speed_multiplier=2,
+                                                        size=100,
+                                                    )
                                                 ],
-                                                body=True
+                                                body=True,
                                             )
                                         ],
                                         width=6  # Adjust the width to fit two word clouds side by side
