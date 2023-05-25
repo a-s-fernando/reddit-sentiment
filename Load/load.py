@@ -1,18 +1,21 @@
-"""Script to load the data into the tables created in the
+"""Script to load data from an S3 bucket into the tables created in the
 create_tables.sql file"""
 import os
 import json
 import psycopg2
 import boto3
 
-DB_HOST=os.environ.get('DB_HOST')
-DB_PORT=int(os.environ.get('DB_PORT'))
-DB_NAME=os.environ.get('DB_NAME')
-DB_USER=os.environ.get('DB_USER')
+DB_HOST = os.environ.get('DB_HOST')
+DB_PORT = int(os.environ.get('DB_PORT'))
+DB_NAME = os.environ.get('DB_NAME')
+DB_USER = os.environ.get('DB_USER')
 DB_PASSWORD = os.environ.get('DB_PASSWORD')
 FILE_NAME = "posts_data.json"
+SQL_FILEPATH = "/var/task/create_tables.sql"
+
 
 def lambda_handler(event, context):
+    """Lambda handler to take data from a csv, set up a postgres db if necessary, and transfer in non-pre-existing data."""
     # Establish database connection
     connection = psycopg2.connect(
         host=DB_HOST,
@@ -22,12 +25,11 @@ def lambda_handler(event, context):
         password=DB_PASSWORD
     )
     cursor = connection.cursor()
-    cursor.execute(open("/var/task/create_tables.sql", "r").read())
+    cursor.execute(open(SQL_FILEPATH, "r").read())
     s3 = boto3.resource(service_name='s3', region_name=os.environ.get("region_name"),
-                        aws_access_key_id=os.environ.get("access_key"),aws_secret_access_key=os.environ.get("secret_access_key"))
+                        aws_access_key_id=os.environ.get("access_key"), aws_secret_access_key=os.environ.get("secret_access_key"))
     bucket_name = os.environ.get("bucket_name")
     s3.Bucket(bucket_name).download_file(FILE_NAME, f'/tmp/{FILE_NAME}')
-
 
     with open(f'/tmp/{FILE_NAME}') as file:
         data = json.loads(file.read())
@@ -101,7 +103,4 @@ def lambda_handler(event, context):
     cursor.close()
     connection.close()
 
-
-
     return "Data processed successfully"
-
