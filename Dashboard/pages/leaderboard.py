@@ -128,18 +128,21 @@ layout = html.Div(
 def generate_leaderboard(value):
 
     grouped_data = filter_data(data)
-    sorted_data = grouped_data.sort_values(ascending=True, by='sentiment')
 
+    leaders = None
     if value == 1:
-        leaders = sorted_data.tail(10)['post_keyword']
+        leaders = grouped_data.sort_values(
+            ascending=False, by='sentiment')['post_keyword']
     else:
-        leaders = sorted_data.head(10)['post_keyword']
+        leaders = grouped_data.sort_values(
+            ascending=True, by='sentiment')['post_keyword']
 
     # Make the organizations distinct before plotting
     leaders = leaders.drop_duplicates()
 
     fig = go.Figure()
 
+    count = 0
     for organization in leaders:
         organization_data = grouped_data[grouped_data['post_keyword']
                                          == organization]
@@ -147,6 +150,9 @@ def generate_leaderboard(value):
         if len(organization_data) > 1:
             fig.add_trace(go.Scatter(
                 x=organization_data['comment_time'], y=organization_data['sentiment'], name=organization))
+            count += 1
+        if count == 10:
+            break
 
     fig.update_layout(
         xaxis_title='Time',
