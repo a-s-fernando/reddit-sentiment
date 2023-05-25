@@ -9,7 +9,7 @@ env:
   ECR_REPOSITORY: sentiment-dash      
   ECS_SERVICE: sentiment-ecs-service   
   ECS_CLUSTER: sentiment-cluster
-  CONTAINER_NAME: sentiment-dash   
+  CONTAINER_NAME: sentiment-dash-container
 
 permissions:
   contents: read
