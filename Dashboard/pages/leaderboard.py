@@ -17,14 +17,17 @@ BUCKET_NAME = os.environ.get("bucket_name")
 s3 = boto3.resource(service_name='s3', region_name=os.environ.get("region_name"),
                     aws_access_key_id=os.environ.get("access_key"), aws_secret_access_key=os.environ.get("secret_access_key"))
 BUCKET = s3.Bucket(BUCKET_NAME)
-nlp = spacy.load('en_core_web_sm')
+FILE_KEY = "cache.json"
+FILE_PATH = '/tmp/cache.json'
+MODEL_SIZE = 'en_core_web_sm'
+nlp = spacy.load(MODEL_SIZE)
 data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
 
 # Check if a remote cache exists, else create one afresh
 cache = None
 try:
-    BUCKET.download_file("cache.json", '/tmp/cache.json')
-    with open("/tmp/cache.json") as cache_file:
+    BUCKET.download_file(FILE_KEY, FILE_PATH)
+    with open(FILE_PATH) as cache_file:
         cache = json.loads(cache_file.read())
 except:
     cache = {}
@@ -133,7 +136,7 @@ layout = html.Div(
     Output('graph', 'figure'),
     Input('radioitems', 'value'),
 )
-def generate_leaderboard(value: int):
+def generate_leaderboard(value: int) -> go.Figure:
     """Depending on the inputted value, returns the 10 organisations with either the best or worst average sentiment."""
 
     grouped_data = filter_data(data)
