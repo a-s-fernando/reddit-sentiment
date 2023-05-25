@@ -6,6 +6,7 @@ from data import build_dataframe
 from datetime import datetime
 import plotly.express as px
 import pandas as pd
+import dash_loading_spinners as dls
 
 # Load the data
 data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
@@ -16,8 +17,8 @@ register_page(__name__, title="Homepage", path='/')
 random_selector = ["Apple", "OpenAI, ChatGPT"]
 
 
-def filter_data(keywords):
-    # Filter the data based on the provided keywords
+def filter_data(keywords: str):
+    """Filter the data based on the provided keywords"""
     if keywords:
         # Split the keywords by comma
         keywords = [keyword.strip() for keyword in keywords.split(",")]
@@ -87,7 +88,13 @@ layout = html.Div(
                                         [
                                             dbc.CardBody(
                                                 [
-                                                    dcc.Graph(id="time-graph")
+                                                    dls.Hash(
+                                                        dcc.Graph(
+                                                            id="time-graph"),
+                                                        color="#051923",
+                                                        speed_multiplier=2,
+                                                        size=100,
+                                                    )
                                                 ]
                                             )
                                         ],
@@ -129,4 +136,9 @@ def search_keywords(n_clicks, start_date, end_date, keywords):
 
     # Create the graph
     fig = px.line(filtered_data, x='comment_time', y='sentiment')
+    fig.update_layout(
+        xaxis_title='Comment Time',
+        yaxis_title='Sentiment',
+    )
+    fig.update_traces(line_color='#00A6FB')
     return fig

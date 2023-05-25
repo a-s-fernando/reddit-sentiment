@@ -10,6 +10,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import spacy
 import boto3
+import dash_loading_spinners as dls
 
 BUCKET_NAME = os.environ.get("bucket_name")
 s3 = boto3.resource(service_name='s3', region_name=os.environ.get("region_name"),
@@ -96,11 +97,16 @@ layout = html.Div(
                                         [
                                             dbc.CardBody(
                                                 [
-                                                    dcc.Graph(
-                                                        id='graph',
-                                                        style={
-                                                            'width': '100%', 'height': 'auto'}
-                                                    ),
+                                                    dls.Hash(
+                                                        dcc.Graph(
+                                                            id='graph',
+                                                            style={
+                                                                'width': '100%', 'height': 'auto'}
+                                                        ),
+                                                        color="#051923",
+                                                        speed_multiplier=2,
+                                                        size=100,
+                                                    )
                                                 ]
                                             )
                                         ],
