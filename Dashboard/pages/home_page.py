@@ -9,6 +9,7 @@ from datetime import datetime
 import plotly.express as px
 import pandas as pd
 import dash_loading_spinners as dls
+import plotly.graph_objects as go
 
 # Load the data
 data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
@@ -122,7 +123,7 @@ layout = html.Div(
     State('datepicker', 'end_date'),
     State('input', 'value')
 )
-def search_keywords(n_clicks: int, start_date: str, end_date: str, keywords: str):
+def search_keywords(n_clicks: int, start_date: str, end_date: str, keywords: str) -> go.Figure:
     """Returns a line graph based on the given keywords, for data between a given time frame."""
     if not keywords or not start_date or not end_date:
         return px.scatter()  # Return an empty scatter plot or a default figure
