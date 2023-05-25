@@ -69,6 +69,7 @@ radioitems = dbc.RadioItems(
     ],
     value=1,
     id="radioitems",
+    inline=True
 )
 
 layout = html.Div(
@@ -80,17 +81,12 @@ layout = html.Div(
                         [
                             dbc.Col(
                                 [
-                                    html.H3('Keyword Leaderboard'),
-                                ],
-                                width=6
-                            ),
-                            dbc.Col(
-                                [
                                     radioitems
                                 ],
-                                width=6
+                                width="auto"
                             ),
-                        ]
+                        ], justify="center",
+                        style={"padding-bottom": "12px"}
                     ),
                     dbc.Row(
                         [
