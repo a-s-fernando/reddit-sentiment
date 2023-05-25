@@ -3,6 +3,7 @@ import random
 from dash import register_page, dcc, html, callback
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
+from pandas import DataFrame
 from data import build_dataframe
 from datetime import datetime
 import plotly.express as px
@@ -18,7 +19,7 @@ register_page(__name__, title="Homepage", path='/')
 random_selector = ["Apple", "OpenAI, ChatGPT"]
 
 
-def filter_data(keywords: str):
+def filter_data(keywords: str) -> DataFrame:
     """Filter the dataframe based on the provided keywords"""
     if keywords:
         # Split the keywords by comma
