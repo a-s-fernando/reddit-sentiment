@@ -11,7 +11,12 @@ layout = html.Div([
         dbc.Card(
             dbc.CardBody(
                 [
-                    html.H3('The Team'),
+                    dbc.Row([
+                        dbc.Col([
+                            html.H3('Team'),
+                        ], width="auto")
+                    ], justify="center",
+                        style={"padding-bottom": "8px"}),
                     dbc.Row(
                         [
                             dbc.Col([
@@ -83,7 +88,12 @@ layout = html.Div([
                         justify="center",
                     ),
                     html.Br(),
-                    html.H3('The Mission'),
+                    dbc.Row([
+                        dbc.Col([
+                            html.H3('Mission'),
+                        ], width="auto")
+                    ], justify="center",
+                        style={"padding-bottom": "8px"}),
                     html.Div(
                         dbc.Accordion(
                             [

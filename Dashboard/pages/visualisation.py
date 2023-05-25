@@ -154,7 +154,7 @@ layout = html.Div(
                                     ),
                                 ],
                                 justify='center',
-                                style={"padding-bottom": "12px"}
+                                style={"padding-bottom": "16px"}
                             ),
 
                             dbc.Row(
