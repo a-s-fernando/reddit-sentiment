@@ -1,5 +1,6 @@
 """wordcloud visualisations page for dash application"""
 from io import BytesIO
+from random import choice
 import base64
 from dash import register_page, html, callback
 import dash_bootstrap_components as dbc
@@ -74,6 +75,11 @@ def filter_text(filtered, opposite, keyword) -> str:
     return text[:-1]
 
 
+def custom_colours(*args, **kwargs):
+    colour_scheme = ["#00A6FB", "#0582CA", "#006494", "#003554", "#051923"]
+    return choice(colour_scheme)
+
+
 def generate_wordcloud(text: str, positive: bool) -> WordCloud:
     """create a wordcloud from text"""
     return WordCloud(
@@ -82,8 +88,8 @@ def generate_wordcloud(text: str, positive: bool) -> WordCloud:
         width=800,
         height=600,
         min_font_size=14,
-        background_color="#ffffff",
-        colormap="autumn"
+        background_color="#FFFFFF",
+        color_func=custom_colours
     ).generate(text)
 
 
@@ -94,7 +100,8 @@ radioitems = dbc.RadioItems(
     ],
     value=-1,
     id="radioitems",
-    inline=True
+    inline=True,
+    class_name="custom-radio"
 )
 
 
@@ -137,7 +144,7 @@ layout = html.Div(
                                     dbc.Col(
                                         [
                                             dbc.Button(
-                                                'Search', id='search-button', color="primary", n_clicks=0)
+                                                'Generate', id='search-button', color="primary", n_clicks=0, class_name="custom-button")
                                         ]
                                     ),
                                     dbc.Col(
@@ -145,7 +152,9 @@ layout = html.Div(
                                             radioitems
                                         ], align="center"
                                     ),
-                                ], justify='center'
+                                ],
+                                justify='center',
+                                style={"padding-bottom": "12px"}
                             ),
 
                             dbc.Row(
