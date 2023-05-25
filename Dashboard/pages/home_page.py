@@ -34,6 +34,7 @@ def filter_data(keywords):
     grouped_data['comment_time'] = pd.to_datetime(grouped_data['comment_time'])
     return grouped_data
 
+
 layout = html.Div(
     [
         dbc.Card(
@@ -47,41 +48,39 @@ layout = html.Div(
                                         id='input',
                                         type='text',
                                         placeholder='Enter keywords (comma-separated)',
-                                        value=random.choice(random_selector)
+                                        value=random.choice(random_selector),
                                     )
-                                ]
+                                ], align='center'
                             ),
                             dbc.Col(
                                 [
-                                    dbc.Button('Search', id='search-button', color="primary", n_clicks=0)
-                                ]
+                                    dbc.Button(
+                                        'Search', id='search-button', color="primary", n_clicks=0, class_name='custom-button')
+                                ], align='center'
                             ),
-                        ]
+                            dbc.Col(
+                                [
+                                    dbc.Row([
+                                        dcc.DatePickerRange(
+                                            id="datepicker",
+                                            min_date_allowed=min(
+                                                data["comment_time"].dt.date),
+                                            end_date=max(
+                                                data["comment_time"].dt.date),
+                                            start_date=min(
+                                                data["comment_time"].dt.date),
+                                            clearable=False,
+                                            calendar_orientation='vertical'
+                                        ),
+                                    ],
+                                        justify='end')
+                                ], width='auto'
+                            ),
+                        ],
+                        style={'padding-bottom': '16px'}
                     ),
                     dbc.Row(
                         [
-                            dbc.Col(
-                                [
-                                    dbc.Card(
-                                        [
-                                            dbc.CardBody(
-                                                [
-                                                    dcc.DatePickerRange(
-                                                        id="datepicker",
-                                                        min_date_allowed=min(data["comment_time"].dt.date),
-                                                        end_date=max(data["comment_time"].dt.date),
-                                                        start_date=min(data["comment_time"].dt.date),
-                                                        clearable=False,
-                                                    ),
-                                                ]
-                                            )
-                                        ],
-                                        body=True,
-                                        className="mb-3"
-                                    )
-                                ],
-                                width=3,
-                            ),
                             dbc.Col(
                                 [
                                     dbc.Card(
@@ -95,7 +94,6 @@ layout = html.Div(
                                         body=True
                                     )
                                 ],
-                                width=9  # Adjust the width to make it wider
                             )
                         ],
                         className="mb-3",
@@ -106,8 +104,6 @@ layout = html.Div(
         )
     ]
 )
-
-
 
 
 @callback(

@@ -22,10 +22,14 @@ navbar = dbc.Row(
                 html.Div(
                     dbc.ButtonGroup(
                         [
-                            dbc.Button("Home page", href="/", className="custom-button"),
-                            dbc.Button("About us", href="/about_us", className="custom-button"),
-                            dbc.Button("Keywords", href="/Visualisation", className="custom-button"),
-                            dbc.Button("Leaderboard", href="/Leaderboard", className="custom-button"),
+                            dbc.Button("Home page", href="/",
+                                       className="custom-button"),
+                            dbc.Button("About us", href="/about_us",
+                                       className="custom-button"),
+                            dbc.Button("Keywords", href="/Visualisation",
+                                       className="custom-button"),
+                            dbc.Button("Leaderboard", href="/Leaderboard",
+                                       className="custom-button"),
                         ],
                         className="mr-2",
                     ),
@@ -34,8 +38,6 @@ navbar = dbc.Row(
         ),
     ]
 )
-
-
 
 
 app.layout = dbc.Container(
@@ -47,4 +49,4 @@ app.layout = dbc.Container(
 )
 
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", debug=True, port=8080)
+    app.run_server(host="0.0.0.0", port=8080)
