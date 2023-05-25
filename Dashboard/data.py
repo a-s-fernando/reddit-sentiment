@@ -1,11 +1,11 @@
+"""Module for data extraction and loading into a Pandas dataframe used for visualisation."""
 import os
 import pandas as pd
 from sqlalchemy import URL, create_engine
 
 
 def build_dataframe() -> pd.DataFrame:
-    """Build a dataframe from downloaded parquet files and returns them clean.
-    Falls back on csv files."""
+    """Build a dataframe based on the contents of a postgres database and returns them clean."""
     url_object = URL.create(
         "postgresql+psycopg2",
         username=os.environ.get('USERNAME'),

@@ -14,6 +14,7 @@ from numpy import ndarray
 from wordcloud import WordCloud
 from pandas import DataFrame
 
+# Load in a list of banned words to exclude from the graph.
 with open("./swearWords.txt") as swears:
     ban_words = []
     for word in swears.readlines():
@@ -76,6 +77,7 @@ def filter_text(filtered, opposite, keyword) -> str:
 
 
 def custom_colours(*args, **kwargs):
+    """Returns a colour scheme matching the Social Sleuth branding"""
     colour_scheme = ["#00A6FB", "#0582CA", "#006494", "#003554", "#051923"]
     return choice(colour_scheme)
 
@@ -93,6 +95,7 @@ def generate_wordcloud(text: str, positive: bool) -> WordCloud:
     ).generate(text)
 
 
+# Radio items for the swear filter
 radioitems = dbc.RadioItems(
     options=[
         {"label": "Show Swears", "value": 1},
@@ -227,7 +230,8 @@ layout = html.Div(
     Input('radioitems', 'value'),
     State('input', 'value')
 )
-def update_wordclouds(n_clicks, swears, keyword):
+def update_wordclouds(n_clicks: int, swears: int, keyword: str):
+    """Return two wordclouds in png format based on inputted values for the swear filter and keyword."""
     if keyword:
         positive_img, negative_img = BytesIO(), BytesIO()
         show_swears = False

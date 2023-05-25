@@ -1,3 +1,4 @@
+"""Main page featuring time vs sentiment vis for a single query."""
 import random
 from dash import register_page, dcc, html, callback
 import dash_bootstrap_components as dbc
@@ -18,7 +19,7 @@ random_selector = ["Apple", "OpenAI, ChatGPT"]
 
 
 def filter_data(keywords: str):
-    """Filter the data based on the provided keywords"""
+    """Filter the dataframe based on the provided keywords"""
     if keywords:
         # Split the keywords by comma
         keywords = [keyword.strip() for keyword in keywords.split(",")]
@@ -120,7 +121,8 @@ layout = html.Div(
     State('datepicker', 'end_date'),
     State('input', 'value')
 )
-def search_keywords(n_clicks, start_date, end_date, keywords):
+def search_keywords(n_clicks: int, start_date: str, end_date: str, keywords: str):
+    """Returns a line graph based on the given keywords, for data between a given time frame."""
     if not keywords or not start_date or not end_date:
         return px.scatter()  # Return an empty scatter plot or a default figure
     start_date = datetime.strptime(start_date, "%Y-%m-%d")

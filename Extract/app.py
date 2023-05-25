@@ -1,7 +1,8 @@
+"""Script to extract data from reddit using PRAW, and send it to an S3 bucket"""
 import os
 import json
-import praw
 import datetime
+import praw
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from dotenv import load_dotenv
 import en_core_web_lg
@@ -104,7 +105,7 @@ def lambda_handler(event, context):
 
     print("Connecting to bucket...")
     s3 = boto3.resource(service_name='s3', region_name=os.environ.get("region_name"),
-                        aws_access_key_id=os.environ.get("access_key"),aws_secret_access_key=os.environ.get("secret_access_key"))
+                        aws_access_key_id=os.environ.get("access_key"), aws_secret_access_key=os.environ.get("secret_access_key"))
     bucket_name = os.environ.get("bucket_name")
     file_name = "posts_data.json"
 
@@ -116,4 +117,3 @@ def lambda_handler(event, context):
 
     print("File uploaded.")
     return "Sent data to S3."
-

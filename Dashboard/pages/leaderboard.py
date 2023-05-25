@@ -1,3 +1,4 @@
+"""Page for visualisation of top (or bottom) 10 organisations based on average sentiment."""
 import os
 import json
 from dash import register_page, dcc, html, callback
@@ -19,6 +20,7 @@ BUCKET = s3.Bucket(BUCKET_NAME)
 nlp = spacy.load('en_core_web_sm')
 data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
 
+# Check if a remote cache exists, else create one afresh
 cache = None
 try:
     BUCKET.download_file("cache.json", '/tmp/cache.json')
@@ -131,7 +133,8 @@ layout = html.Div(
     Output('graph', 'figure'),
     Input('radioitems', 'value'),
 )
-def generate_leaderboard(value):
+def generate_leaderboard(value: int):
+    """Depending on the inputted value, returns the 10 organisations with either the best or worst average sentiment."""
 
     grouped_data = filter_data(data)
 

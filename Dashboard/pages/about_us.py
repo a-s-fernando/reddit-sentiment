@@ -1,4 +1,5 @@
 
+"""Basic about us and information page."""
 import dash_bootstrap_components as dbc
 from dash import register_page, html
 
