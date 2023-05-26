@@ -4,6 +4,12 @@ on:
   push:
     branches: ["main"]
 
+env:
+  USERNAME: ${{ secrets.USERNAME }}
+  PASSWORD: ${{ secrets.PASSWORD }}
+  HOST: ${{ secrets.HOST }}
+  DATABASE: ${{ secrets.DATABASE_NAME }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
