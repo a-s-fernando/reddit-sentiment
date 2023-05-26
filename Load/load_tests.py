@@ -1,13 +1,14 @@
+"""Test file for the load.py script"""
 import os
 import unittest
 import psycopg2
-import boto3
 from load import lambda_handler
 from dotenv import load_dotenv
+
 load_dotenv()
 
-
 class TestLoad(unittest.TestCase):
+    """Class to test the load functions"""
     def setUp(self):
         self.db_host = os.environ.get('DB_HOST')
         self.db_port = os.environ.get('DB_PORT')
@@ -16,13 +17,19 @@ class TestLoad(unittest.TestCase):
         self.db_password = os.environ.get('DB_PASSWORD')
 
         # Create test data
-        self.test_data = [{"title": "test title", "datetime": "2023-05-22", "keywords": ["test"],
-                           "comments": [{"comment": "test comment", "datetime": "2023-05-22",
-                                         "score": 1, "sentiment": {"compound": 1}, "keywords": ["test"]}]}]
+        self.test_data = [
+            {"title": "test title", "datetime": "2023-05-22", "keywords": ["test"],
+            "comments": [{"comment": "test comment", "datetime": "2023-05-22",
+            "score": 1, "sentiment": {"compound": 1}, "keywords": ["test"]}]}
+            ]
 
         # Setup database connection
-        self.conn = psycopg2.connect(host=self.db_host, port=self.db_port,
-                                     dbname=self.db_name, user=self.db_user, password=self.db_password)
+        self.conn = psycopg2.connect(host=self.db_host,
+                                     port=self.db_port,
+                                     dbname=self.db_name,
+                                     user=self.db_user,
+                                     password=self.db_password)
+
         self.cursor = self.conn.cursor()
 
     def tearDown(self):
@@ -36,7 +43,7 @@ class TestLoad(unittest.TestCase):
         self.conn.close()
 
     def test_lambda_handler(self):
-        # assuming the tables have been created prior to testing
+        """assuming the tables have been created prior to testing"""
         event = {}
         context = {}
 
