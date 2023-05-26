@@ -16,7 +16,7 @@ data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
 
 
 # Register the page
-register_page(__name__, title="Home", path='/')
+register_page(__name__, title="Home", path="/")
 random_selector = ["Apple", "OpenAI, ChatGPT"]
 
 
@@ -146,3 +146,4 @@ def search_keywords(n_clicks: int, start_date: str, end_date: str, keywords: str
     )
     fig.update_traces(line_color='#00A6FB')
     return fig
+

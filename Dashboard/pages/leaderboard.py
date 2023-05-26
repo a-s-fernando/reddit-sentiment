@@ -33,7 +33,8 @@ except:
     cache = {}
 
 
-register_page(__name__, title="Leaderboard", path='/leaderboard')
+register_page(__name__, title="Leaderboard", path="/leaderboard")
+
 
 
 def is_organisation(x):
@@ -173,3 +174,4 @@ def generate_leaderboard(value: int) -> go.Figure:
     )
 
     return fig
+

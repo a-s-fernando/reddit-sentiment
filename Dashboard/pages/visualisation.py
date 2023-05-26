@@ -21,7 +21,7 @@ with open(BANNED_WORDS_FILEPATH) as swears:
         ban_words.append(word.strip())
 
 
-register_page(__name__, title="Keywords", path='/keywords')
+register_page(__name__, title="Keywords", path="/keywords")
 DATA = build_dataframe()  # Load the data (replace with your actual data loading code)
 
 
@@ -245,3 +245,4 @@ def update_wordclouds(n_clicks: int, swears: int, keyword: str) -> tuple:
         return 'data:image/png;base64,{}'.format(base64.b64encode(positive_img.getvalue()).decode()), 'data:image/png;base64,{}'.format(base64.b64encode(negative_img.getvalue()).decode())
     else:
         return None, None
+
