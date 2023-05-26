@@ -99,13 +99,14 @@ def lambda_handler(event, context):
         print("Successfully connected to the Reddit API")
     else:
         print("Failed to connect to the Reddit API")
-        return  # Terminate the script if the API connection failed
+        return None # Terminate the script if the API connection failed
 
     posts_data = fetch_posts(reddit, SUBREDDIT_NAME, NUM_POSTS)
 
     print("Connecting to bucket...")
     s3 = boto3.resource(service_name='s3', region_name=os.environ.get("region_name"),
-                        aws_access_key_id=os.environ.get("access_key"), aws_secret_access_key=os.environ.get("secret_access_key"))
+                        aws_access_key_id=os.environ.get("access_key"),
+                        aws_secret_access_key=os.environ.get("secret_access_key"))
     bucket_name = os.environ.get("bucket_name")
     file_name = "posts_data.json"
 
