@@ -1,6 +1,6 @@
 # reddit-sentiment
 
-![Social Sleuth](social_sleuth.png)
+![Social Sleuth]([social_sleuth.png](https://i.ibb.co/bLZpf7W/Screenshot-2023-05-26-at-11-07-33.png))
 
 ## Description
 
