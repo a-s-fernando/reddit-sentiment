@@ -33,7 +33,7 @@ except:
     cache = {}
 
 
-register_page(__name__, title="Leaderboard", path='/Leaderboard')
+register_page(__name__, title="Leaderboard", path='/leaderboard')
 
 
 def is_organisation(x):
