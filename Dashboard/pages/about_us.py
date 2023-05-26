@@ -131,3 +131,4 @@ layout = html.Div([
         justify="center"),
 ],
     style={"color": "#000000"},)
+

@@ -173,3 +173,4 @@ def generate_leaderboard(value: int) -> go.Figure:
     )
 
     return fig
+
