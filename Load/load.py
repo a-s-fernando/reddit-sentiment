@@ -15,7 +15,8 @@ SQL_FILEPATH = "/var/task/create_tables.sql"
 
 
 def lambda_handler(event, context):
-    """Lambda handler to take data from a csv, set up a postgres db if necessary, and transfer in non-pre-existing data."""
+    """Lambda handler to take data from a csv, set up a postgres db
+    if necessary, and transfer in non-pre-existing data."""
     # Establish database connection
     connection = psycopg2.connect(
         host=DB_HOST,
@@ -27,11 +28,13 @@ def lambda_handler(event, context):
     cursor = connection.cursor()
     cursor.execute(open(SQL_FILEPATH, "r").read())
     s3 = boto3.resource(service_name='s3', region_name=os.environ.get("region_name"),
-                        aws_access_key_id=os.environ.get("access_key"), aws_secret_access_key=os.environ.get("secret_access_key"))
+                        aws_access_key_id=os.environ.get("access_key"),
+                        aws_secret_access_key=os.environ.get("secret_access_key"))
+
     bucket_name = os.environ.get("bucket_name")
     s3.Bucket(bucket_name).download_file(FILE_NAME, f'/tmp/{FILE_NAME}')
 
-    with open(f'/tmp/{FILE_NAME}') as file:
+    with open(f'/tmp/{FILE_NAME}', encoding='utf-8') as file:
         data = json.loads(file.read())
 
     # Process each post in the json input
@@ -77,7 +80,8 @@ def lambda_handler(event, context):
 
             # Insert the new comment into the database
             cursor.execute("INSERT INTO Comment (comment_time, comment, score, sentiment, post_id) VALUES (%s, %s, %s, %s, %s) RETURNING comment_id",
-                           (comment['datetime'], comment['comment'], comment['score'], comment['sentiment']['compound'], post_id))
+                           (comment['datetime'], comment['comment'], comment['score'],
+                            comment['sentiment']['compound'], post_id))
             comment_id = cursor.fetchone()[0]
 
             # Insert keywords associated with the comment

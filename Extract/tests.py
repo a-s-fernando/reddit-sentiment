@@ -1,12 +1,10 @@
 """Unit tests to ensure the correct functionality of the app.py script"""
-from app import analyse_comments
-from unittest.mock import MagicMock, patch
 import os
+from unittest.mock import MagicMock, patch
 from dotenv import load_dotenv
 import praw
 import spacy
 import unittest
-from unittest.mock import MagicMock
 from app import fetch_posts, analyse_comments
 
 
@@ -78,30 +76,25 @@ def test_fetch_posts_returns_post_with_correct_types():
         user_agent=user_agent
     )
     posts = fetch_posts(reddit)
-    nlp = spacy.load('en_core_web_lg')  # Load spaCy model
 
     posts = fetch_posts(reddit)
     for post in posts:
         entities = post['entities']
         print(entities)
         keywords = post['keywords']
-        title = post['title']
-        doc = nlp(title)
-        extracted_entities = [(ent.text, ent.label_) for ent in doc.ents]
-        extracted_keywords = [
-            ent[0] for ent in extracted_entities if ent[1] in ['ORG', 'LOC', 'PRODUCT']]
-        assert type(entities) == list
-        assert type(keywords) == list
+        assert isinstance(entities) == list
+        assert isinstance(keywords) == list
 
 
 class AnalyseCommentsTestCase(unittest.TestCase):
+    """class used for comment analysis test"""
     def setUp(self):
-        # Mock praw.Reddit object
+        """Mock praw.Reddit object"""
         self.reddit = MagicMock()
 
     @patch('app.praw.models')
     def test_analyse_comments_adds_comments_to_post_data(self, mock_models):
-        # Mock post_data dictionary
+        """Mock post_data dictionary"""
         post_data = {
             'id': '123456',
             'title': 'Sample Post',
@@ -133,7 +126,7 @@ class AnalyseCommentsTestCase(unittest.TestCase):
 
     @patch('app.praw.models')
     def test_analyse_comments_extract_entities_and_keywords(self, mock_models):
-        # Mock post_data dictionary with a single comment
+        """Mock post_data dictionary with a single comment"""
         post_data = {
             'id': '123456',
             'title': 'Sample Post',
@@ -157,7 +150,7 @@ class AnalyseCommentsTestCase(unittest.TestCase):
 
     @patch('app.praw.models')
     def test_analyse_comments_calculate_sentiment_scores(self, mock_models):
-        # Mock post_data dictionary with a single comment
+        """Mock post_data dictionary with a single comment"""
         post_data = {
             'id': '123456',
             'title': 'Sample Post',
