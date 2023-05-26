@@ -16,7 +16,7 @@ data = build_dataframe().drop('comment_keyword', axis=1).drop_duplicates()
 
 
 # Register the page
-register_page(__name__, title="Home", path='/')
+register_page(__name__, title="Home", path="/")
 random_selector = ["Apple", "OpenAI, ChatGPT"]
 
 

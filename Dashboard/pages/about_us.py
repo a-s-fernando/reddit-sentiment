@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import register_page, html
 
 
-register_page(__name__, title="About us", path='/about_us')
+register_page(__name__, title="About us", path="/about_us")
 
 
 layout = html.Div([

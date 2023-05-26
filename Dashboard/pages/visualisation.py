@@ -21,7 +21,7 @@ with open(BANNED_WORDS_FILEPATH) as swears:
         ban_words.append(word.strip())
 
 
-register_page(__name__, title="Keywords", path='/keywords')
+register_page(__name__, title="Keywords", path="/keywords")
 DATA = build_dataframe()  # Load the data (replace with your actual data loading code)
 
 
