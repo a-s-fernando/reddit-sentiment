@@ -1,5 +1,7 @@
 # reddit-sentiment
 
+![Social Sleuth](social_sleuth.png)
+
 ## Description
 
 ### What does this do?
