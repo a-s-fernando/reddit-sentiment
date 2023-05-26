@@ -100,21 +100,21 @@ layout = html.Div([
                             [
                                 dbc.AccordionItem(
                                     """This project uses the Reddit API to extract comments about various entities, such as companies or concepts.
-                            The sentiment of these comments is then analyzed over time to track changes in public opinion.
+                            The sentiment of these comments is then analysed over time to track changes in public opinion.
                             This information can be used to make informed decisions about marketing, product development, and other business initiatives.""",
                                     title="What does this do?"
                                 ),
                                 dbc.AccordionItem(
                                     """Our aim is to analyse how sentiment changes over time for various entities such as individuals, companies, technologies, and locations.
-                            We believe that visualizing sentiment trends can be a powerful way to communicate our findings to our users.
-                            By creating clear and concise visualizations, we can help our users understand how sentiment is changing for the entities that they care about.
+                            We believe that visualising sentiment trends can be a powerful way to communicate our findings to our users.
+                            By creating clear and concise visualisations, we can help our users understand how sentiment is changing for the entities that they care about.
                             This information can help our users make better decisions about their own businesses, investments, and personal lives.""",
                                     title="What are the goals?"
                                 ),
                                 dbc.AccordionItem(
                                     """
-                            This tool can be used by organizations to gauge sentiment on other companies, products, and potential technologies. This information can be useful for informing design and business decisions.
-                            For example, an organization could use this tool to see what people are saying about their competitors' products, or to get feedback on a new product that they are developing.
+                            This tool can be used by organisations to gauge sentiment on other companies, products, and potential technologies. This information can be useful for informing design and business decisions.
+                            For example, an organisation could use this tool to see what people are saying about their competitors' products, or to get feedback on a new product that they are developing.
                             This tool can also be used by people who are simply curious about the world around them.
                             The information provided can provide fascinating cultural and societal insights. For example, someone could use this tool to see what people are saying about a current event, or to learn about different technologies.""",
                                     title="Who is it for?"
