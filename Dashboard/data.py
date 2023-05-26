@@ -27,13 +27,15 @@ def build_dataframe() -> DataFrame:
         table_name='keyword_in_comment', con=engine)
 
     post_keywords = pd.merge(post_keyword, keyword_in_post, how='inner',
-                             left_on='post_keyword_id', right_on='post_keyword_id').drop('post_keyword_id', axis=1)
+                             left_on='post_keyword_id',
+                            right_on='post_keyword_id').drop('post_keyword_id', axis=1)
     posts_and_keywords = pd.merge(
         post_keywords, post, how='inner', left_on='post_id', right_on='post_id')
 
     comment_keywords = pd.merge(comment_keyword, keyword_in_comment, how='inner',
                                 left_on='comment_keyword_id', right_on='comment_keyword_id')
     comments_and_keywords = pd.merge(comment, comment_keywords, how='inner',
-                                     left_on='comment_id', right_on='comment_id').drop('comment_keyword_id', axis=1)
+                                     left_on='comment_id',
+                                    right_on='comment_id').drop('comment_keyword_id', axis=1)
 
     return pd.merge(comments_and_keywords, posts_and_keywords, how='inner', on='post_id')

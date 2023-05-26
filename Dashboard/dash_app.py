@@ -1,6 +1,6 @@
 """ Dash application for visualisations based on Social Sleuth data."""
 import dash_bootstrap_components as dbc
-from dash import Dash, page_container, page_registry, html
+from dash import Dash, page_container, html
 
 LOGO = 'https://i.ibb.co/G3gjvcb/Screenshot-2023-05-24-at-15-03-40.png'
 
@@ -23,7 +23,7 @@ navbar = dbc.Row(
                 html.Div(
                     dbc.ButtonGroup(
                         [
-                            dbc.Button("Home page", href="/",
+                            dbc.Button("Home", href="/",
                                        className="custom-button"),
                             dbc.Button("About us", href="/about_us",
                                        className="custom-button"),

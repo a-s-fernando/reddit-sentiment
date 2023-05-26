@@ -169,8 +169,7 @@ def generate_leaderboard(value: int) -> go.Figure:
 
     fig.update_layout(
         xaxis_title='Time',
-        yaxis_title='Sentiment',
-        title='Organisations Sentiment Over Time'
+        yaxis_title='Sentiment'
     )
 
     return fig
