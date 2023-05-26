@@ -1,6 +1,6 @@
-# reddit-sentiment
+# Reddit Sentiment Analyser
 
-![Social Sleuth]([social_sleuth.png](https://i.ibb.co/bLZpf7W/Screenshot-2023-05-26-at-11-07-33.png))
+<img width="1000" alt="Screenshot 2023-05-26 at 11 07 33" src="https://github.com/a-s-fernando/reddit-sentiment/assets/76485041/630a550c-d1b9-4201-ab42-8e7d0c81049a">
 
 ## Description
 
