@@ -127,8 +127,6 @@ def key_word_cloud(df: DataFrame, keyword: str, positive: bool, swears: bool = F
 
 layout = html.Div(
     [
-        dbc.Row(
-            [
                 dbc.Card(
                     dbc.CardBody(
                         [
@@ -215,9 +213,6 @@ layout = html.Div(
                     ),
                     className="w-100",
                 ),
-            ],
-            justify="center"
-        ),
     ],
     style={"color": "#000000"}
 )
