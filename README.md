@@ -1,6 +1,4 @@
-# Reddit Sentiment Analyser
-
-<img width="1012" alt="Screenshot 2023-05-26 at 11 07 33" src="https://github.com/a-s-fernando/reddit-sentiment/assets/76485041/630a550c-d1b9-4201-ab42-8e7d0c81049a">
+# Social Sleuth (Reddit Sentiment Analysis)
 
 ## Description
 
@@ -13,6 +11,7 @@
 
 - Our aim is to analyse how sentiment changes over time for various entities such as individuals, companies, technologies, and locations.
 - We hope that useful visualisations of such trends can help inform our users.
+- Although focusing on the Reddit API in our PoC, this project could be expanded to take data from a wealth of sources in order to eliminate bias.
 
 ### Who is this for?
 
@@ -21,6 +20,7 @@
 - **The curious**
   - As well as informing the common consumer, the information provided can provide fascinating cultural and societal insights.
 
+<b>NOTE: This project was created before the changes to the Reddit API pricing.</b>
 ---
 
 ## Features
@@ -48,7 +48,7 @@
 
 ## Behind the Scenes
 
-The backend of this project consists of two python files, `app.py` and `load.py`, and a SQL script `create_tables.sql`.
+The backend of this project consists of two Python files, `app.py` and `load.py`, and a SQL script `create_tables.sql`.
 
 `app.py` is responsible for extracting data from the Reddit API and storing it in an S3 bucket. It utilises PRAW (Python Reddit API Wrapper) and NLTK's VADER (Valence Aware Dictionary for Sentiment Reasoning) for sentiment analysis.
 
@@ -99,4 +99,5 @@ The architecture can then be provisioned using the following command:
 ## Future Aims
 
 - Train a model to predict sentiment and trends based on posts.
+- Integrate additional data sources.
 - Analyse a potential correlation between sentiment and stock price.
